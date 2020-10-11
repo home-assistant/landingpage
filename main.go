@@ -19,6 +19,10 @@ func main() {
 		wwwRoot = "/usr/share/www/"
 	}
 
+	http.HandleFunc("/", httpIndex)
+	http.HandleFunc("/api/", httpForbidden)
+	http.HandleFunc("/auth/token", httpBad)
+
 	// Serve static help files
 	staticFiles := http.FileServer(http.Dir(wwwRoot))
 	http.Handle("/landingpage/", http.StripPrefix("/landingpage", staticFiles))
