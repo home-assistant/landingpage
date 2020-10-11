@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net"
 
 	"github.com/grandcat/zeroconf"
@@ -25,7 +26,7 @@ func publishHomeAssistant() {
 
 	mdns, err = zeroconf.Register("homeassistant-"+unique.String(), "_home-assistant._tcp", "local.", 8123, params, nil)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer mdns.Shutdown()
 }
@@ -36,7 +37,7 @@ func publishHomeAssistant() {
 func getOutboundIP() net.IP {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer conn.Close()
 

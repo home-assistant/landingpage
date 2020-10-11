@@ -31,9 +31,10 @@ func main() {
 	http.Handle("/landingpage/", http.StripPrefix("/landingpage", staticFiles))
 
 	// Start mDNS broadcast
+	log.Print("Start mDNS broadcast")
 	publishHomeAssistant()
 
 	// Run webserver
-	log.Print("Start webserver on http://0.0.0.0:80")
+	log.Print("Start webserver on http://0.0.0.0:8123")
 	http.ListenAndServe(":8321", nil)
 }
