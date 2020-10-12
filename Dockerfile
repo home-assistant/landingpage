@@ -21,13 +21,11 @@ RUN \
             CGO_ENABLED=0 GOARCH=amd64 go build -ldflags="-s -w"; \
         else \
             exit 1; \
-        fi \
-    && cp -f landingpage /usr/bin/landingpage \
-    && rm -rf /usr/src/landingpage
+        fi
 
 
 FROM ${BUILD_FROM}
 
 WORKDIR /
-COPY --from=builder /usr/bin/landingpage /usr/bin/landingpage
+COPY --from=builder /usr/src/landingpage/landingpage /usr/bin/landingpage
 COPY rootfs /
