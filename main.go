@@ -37,5 +37,5 @@ func main() {
 
 	// Run webserver
 	log.Print("Start webserver on http://0.0.0.0:8123")
-	http.ListenAndServe(":8321", nil)
+	http.ListenAndServe(":8123", nil)
 }
