@@ -12,7 +12,7 @@ func publishHomeAssistant() {
 	var err error
 
 	unique := xid.New()
-	hostURL := "http://" + string(getOutboundIP()) + ":8123"
+	hostURL := "http://" + getOutboundIP().String() + ":8123"
 	params := []string{
 		"location_name=Home Assistant",
 		"uuid=",
@@ -24,6 +24,7 @@ func publishHomeAssistant() {
 		"requires_api_password=True",
 	}
 
+	log.Printf("Publish %s to _home-assistant._tcp", hostURL)
 	mdns, err = zeroconf.Register("homeassistant-"+unique.String(), "_home-assistant._tcp", "local.", 8123, params, nil)
 	if err != nil {
 		log.Fatal(err)
