@@ -33,6 +33,7 @@ func main() {
 	// Start mDNS broadcast
 	log.Print("Start mDNS broadcast")
 	publishHomeAssistant()
+	defer mdns.Shutdown()
 
 	// Run webserver
 	log.Print("Start webserver on http://0.0.0.0:8123")
