@@ -246,15 +246,16 @@
       }
 
       function scheduleFetchLogs() {
-        setTimeout(fetchLogs, 1000);
+        setTimeout(fetchLogs, 5000);
       }
 
       scheduleTry();
-      scheduleFetchLogs();
+      fetchLogs();
 
       document.getElementById("log").addEventListener("click", function (event) {
         const log = event.currentTarget
         log.showFull = !log.showFull
+        fetchLogs()
       });
     </script>
   </body>
