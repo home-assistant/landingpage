@@ -16,7 +16,7 @@ func httpIndex(w http.ResponseWriter, r *http.Request) {
 	}
 	data, _ := ioutil.ReadFile(wwwRoot + "/index.html")
 
-	w.Header().Add("Content-Type", "text/plain")
+	w.Header().Add("Content-Type", "text/html")
 	w.Write(data)
 }
 
