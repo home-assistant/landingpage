@@ -2,7 +2,7 @@ ARG BUILD_FROM
 
 FROM golang:1.14-alpine3.12 AS builder
 
-WORKDIR /workspace/observer-plugin
+WORKDIR /usr/src/landingpage
 ARG BUILD_ARCH
 
 COPY . .
@@ -22,12 +22,12 @@ RUN \
         else \
             exit 1; \
         fi \
-    && cp -f landingpage /workspace/landingpage \
-    && rm -rf /workspace/landingpage
+    && cp -f landingpage /usr/bin/landingpage \
+    && rm -rf /usr/src/landingpage
 
 
 FROM ${BUILD_FROM}
 
 WORKDIR /
-COPY --from=builder /workspace/landingpage /usr/bin/landingpage
+COPY --from=builder /usr/bin/landingpage /usr/bin/landingpage
 COPY rootfs /
