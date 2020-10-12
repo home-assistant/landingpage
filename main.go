@@ -8,7 +8,6 @@ import (
 	"github.com/grandcat/zeroconf"
 )
 
-var staticFiles *http.Handler
 var mdns *zeroconf.Server
 var wwwRoot string
 var development bool
