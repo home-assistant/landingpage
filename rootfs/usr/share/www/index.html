@@ -67,6 +67,10 @@
         animation-delay: -1s;
       }
 
+      #log {
+        cursor: pointer;
+      }
+ 
       @-webkit-keyframes sk-bounce {
         0%,
         100% {
@@ -98,6 +102,7 @@
         <div class="double-bounce1"></div>
         <div class="double-bounce2"></div>
       </div>
+      <pre id="log" title="Click to show full log"></pre>
       (this can take up to 20 minutes)
     </div>
 
@@ -216,11 +221,41 @@
         }, scheduleTry);
       }
 
+      function fetchLogs() {
+        fetch("/observer/logs").then(function (res) {
+          if (res.ok) {
+            res.text().then(function (text) {
+              const logElement = document.querySelector("#log")
+              let logLines = text
+
+              if (!logElement.showFull) {
+                logLines = logLines.split("\n").slice(-2)[0]
+              }
+
+              logElement.innerText = logLines
+                .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
+                .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
+                .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
+            })
+          }
+        }, scheduleFetchLogs());
+      }
+
       function scheduleTry() {
         setTimeout(testAvailable, 5000);
       }
 
+      function scheduleFetchLogs() {
+        setTimeout(fetchLogs, 1000);
+      }
+
       scheduleTry();
+      scheduleFetchLogs();
+
+      document.getElementById("log").addEventListener("click", function (event) {
+        const log = event.currentTarget
+        log.showFull = !log.showFull
+      });
     </script>
   </body>
 </html>
