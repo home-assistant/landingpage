@@ -29,7 +29,6 @@ func publishHomeAssistant() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer mdns.Shutdown()
 }
 
 // Get preferred outbound ip of this machine
