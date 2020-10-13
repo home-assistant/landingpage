@@ -30,7 +30,7 @@ func httpBad(w http.ResponseWriter, r *http.Request) {
 func httpLogs(w http.ResponseWriter, r *http.Request) {
 	response, err := http.Get("http://observer/logs")
 
-	if err != nil || response.StatusCode < 300 {
+	if err != nil || response.StatusCode >= 300 {
 		log.Printf("Observer /logs fails: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
