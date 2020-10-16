@@ -22,7 +22,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", httpIndex)
-	http.HandleFunc("/api/", httpForbidden)
+	http.HandleFunc("/api/", httpUnauthorized)
 	http.HandleFunc("/auth/token", httpBad)
 	http.HandleFunc("/observer/logs", httpLogs)
 

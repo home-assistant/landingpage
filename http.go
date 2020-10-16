@@ -19,8 +19,8 @@ func httpIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func httpForbidden(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+func httpUnauthorized(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 }
 
 func httpBad(w http.ResponseWriter, r *http.Request) {
