@@ -10,7 +10,7 @@ import (
 var regexASCII = regexp.MustCompile(`\[\d+m`)
 
 func httpIndex(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+	if r.URL.Path != "/" && r.URL.Path != "/auth/authorize" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
