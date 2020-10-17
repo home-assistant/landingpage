@@ -116,7 +116,7 @@
           perfect&nbsp;home&nbsp;automation.</a
         >
       </div>
-      <div class="suggestion">
+      <div id="app-links" class="suggestion">
         Install the official Home Assistant apps
         <div class="app-links">
           <a
@@ -256,6 +256,14 @@
         const log = event.currentTarget
         log.showFull = !log.showFull
         fetchLogs()
+      });
+
+      document.addEventListener('DOMContentLoaded', (event) => {
+        if (location.search.indexOf("client_id=http://home-assistant.io/android") !== -1 ||
+        location.search.indexOf("client_id=http://home-assistant.io/iOS") !== -1) {
+          // Hide app links if visited from an app
+          document.querySelector("#app-links").remove()
+        }
       });
     </script>
   </body>
