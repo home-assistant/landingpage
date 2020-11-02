@@ -235,7 +235,10 @@
               logElement.innerText = logLines
                 .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
                 .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
-                .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
+                .replace(/\d{2}:\d{2}:\d{2}\s/gi, "")
+                .replace(
+                  "Failed to load cookie file from cookie: No such file or directory",
+                  "Home Assistant is finishing the setup");
             })
           }
         }, scheduleFetchLogs());
