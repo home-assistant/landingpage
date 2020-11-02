@@ -26,7 +26,7 @@ jobs:
       run: echo "BUILD_ARGS=--test" >> $GITHUB_ENV
 
     - name: Build landingpage
-      uses: home-assistant/builder@2020.10.0
+      uses: home-assistant/builder@2020.11.0
       with:
         args: |
           $BUILD_ARGS \
