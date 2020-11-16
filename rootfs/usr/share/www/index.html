@@ -228,7 +228,7 @@
 
       function fetchLogs() {
         fetch("/observer/logs").then(function (res) {
-          if (!res.ok) {
+          if (res.ok) {
             res.text().then(function (text) {
               const logElement = document.querySelector("#log")
               logElement.innerText = logElement.showFull ? text : ""
