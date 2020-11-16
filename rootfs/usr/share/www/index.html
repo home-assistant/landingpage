@@ -42,7 +42,7 @@
       .spinner {
         width: 40px;
         height: 40px;
-
+        cursor: pointer;
         position: relative;
         margin: 20px auto;
       }
@@ -67,8 +67,13 @@
         animation-delay: -1s;
       }
 
-      #log {
-        cursor: pointer;
+      pre {
+        display: block;
+        margin: auto;
+        max-width: 450px;
+        padding-bottom: 8px;
+        text-align: left;        
+        white-space: pre-line;
       }
  
       @-webkit-keyframes sk-bounce {
@@ -98,11 +103,11 @@
     <div class="loading">
       <img src="/landingpage/logo.svg" alt="Home Assistant logo" />
       <h1>Preparing Home&nbsp;Assistant</h1>
-      <div class="spinner">
+      <div class="spinner" id="spinner" title="Click to show the log">
         <div class="double-bounce1"></div>
         <div class="double-bounce2"></div>
       </div>
-      <pre id="log" title="Click to show full log"></pre>
+      <pre id="log"></pre>
       (this can take up to 20 minutes)
     </div>
 
@@ -223,16 +228,10 @@
 
       function fetchLogs() {
         fetch("/observer/logs").then(function (res) {
-          if (res.ok) {
+          if (!res.ok) {
             res.text().then(function (text) {
               const logElement = document.querySelector("#log")
-              let logLines = text
-
-              if (!logElement.showFull) {
-                logLines = logLines.split("\n").slice(-2)[0]
-              }
-
-              logElement.innerText = logLines
+              logElement.innerText = logElement.showFull ? text : ""
                 .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
                 .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
                 .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
@@ -252,9 +251,9 @@
       scheduleTry();
       fetchLogs();
 
-      document.getElementById("log").addEventListener("click", function (event) {
-        const log = event.currentTarget
-        log.showFull = !log.showFull
+      document.getElementById("spinner").addEventListener("click", function (event) {
+        const logElement = document.querySelector("#log")
+        log.showFull = !logElement.showFull
         fetchLogs()
       });
 
