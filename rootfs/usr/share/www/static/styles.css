@@ -7,13 +7,12 @@
 }
 
 html {
-  color: var(--primary-text-color, #212121);
-  background-color: #0277bd !important;
+  color: #212121;
+  background-color: #0277bd;
 }
 
 body {
   font-family: Roboto, Helvetica, Arial, sans-serif;
-  padding-top: 10%;
 }
 
 a {
@@ -137,9 +136,6 @@ pre {
 }
 
 @media (max-width: 450px) {
-  body {
-    padding-top: 0;
-  }
   .content {
     min-height: 100%;
     margin: 0;
