@@ -137,6 +137,9 @@ pre {
 }
 
 @media (max-width: 450px) {
+  body {
+    padding-top: 0;
+  }
   .content {
     min-height: 100%;
     margin: 0;
