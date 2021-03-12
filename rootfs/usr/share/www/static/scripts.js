@@ -115,7 +115,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 
 tsParticles.load("particles", {
-  // autoPlay: true,
   fullScreen: {
     enable: true,
     zIndex: -1,
@@ -127,6 +126,21 @@ tsParticles.load("particles", {
     reduce: {
       factor: 4,
       value: true,
+    },
+  },
+  interactivity: {
+    detect_on: "window",
+    events: {
+      onhover: {
+        enable: true,
+        mode: "repulse",
+      },
+    },
+    modes: {
+      repulse: {
+        distance: 80,
+        duration: 0.1,
+      },
     },
   },
   particles: {
