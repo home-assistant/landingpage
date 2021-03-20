@@ -54,7 +54,7 @@ jobs:
           --docker-hub homeassistant
 
     - name: Signing image
-      if: github.event_name != 'release'
+      if: github.event_name == 'release'
       uses: home-assistant/actions/helpers/codenotary@master
       with:
         source: docker://homeassistant/${{ matrix.machine }}-homeassistant:landingpage
