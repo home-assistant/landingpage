@@ -10,6 +10,25 @@ jobs:
   build:
     name: Build landingpage
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        machine:
+        - generic-x86-64
+        - intel-nuc
+        - odroid-c4
+        - odroid-n2
+        - odroid-xu
+        - qemuarm
+        - qemuarm-64
+        - qemux86
+        - qemux86-64
+        - raspberrypi
+        - raspberrypi2
+        - raspberrypi3
+        - raspberrypi3-64
+        - raspberrypi4
+        - raspberrypi4-64
+        - tinker
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v2
@@ -31,5 +50,14 @@ jobs:
         args: |
           $BUILD_ARGS \
           --target /data \
-          --homeassistant-landingpage ALL \
+          --homeassistant-landingpage ${{ matrix.machine }} \
           --docker-hub homeassistant
+
+    - name: Signing image
+      if: github.event_name == 'release'
+      uses: home-assistant/actions/helpers/codenotary@master
+      with:
+        source: docker://homeassistant/${{ matrix.machine }}-homeassistant:landingpage
+        user: ${{ secrets.VCN_USER }}
+        password: ${{ secrets.VCN_PASSWORD }}
+        organisation: ${{ secrets.VCN_ORG }}
