@@ -13,22 +13,22 @@ jobs:
     strategy:
       matrix:
         machine:
-        - generic-x86-64
-        - intel-nuc
-        - odroid-c4
-        - odroid-n2
-        - odroid-xu
-        - qemuarm
-        - qemuarm-64
-        - qemux86
-        - qemux86-64
-        - raspberrypi
-        - raspberrypi2
-        - raspberrypi3
-        - raspberrypi3-64
-        - raspberrypi4
-        - raspberrypi4-64
-        - tinker
+          - generic-x86-64
+          - intel-nuc
+          - odroid-c4
+          - odroid-n2
+          - odroid-xu
+          - qemuarm
+          - qemuarm-64
+          - qemux86
+          - qemux86-64
+          - raspberrypi
+          - raspberrypi2
+          - raspberrypi3
+          - raspberrypi3-64
+          - raspberrypi4
+          - raspberrypi4-64
+          - tinker
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v2
@@ -39,6 +39,14 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Login to GitHub Container Registry
+      if: github.event_name == 'release'
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GIT_USER }}
+        password: ${{ secrets.GIT_TOKEN }}
 
     - name: Set build arguments
       if: github.event_name != 'release'
@@ -51,13 +59,6 @@ jobs:
           $BUILD_ARGS \
           --target /data \
           --homeassistant-landingpage ${{ matrix.machine }} \
+          --with-codenotary "${{ secrets.VCN_USER }}" "${{ secrets.VCN_PASSWORD }}" "${{ secrets.VCN_ORG }}" \
+          --validate-from "${{ secrets.VCN_ORG }}" \
           --docker-hub homeassistant
-
-    - name: Signing image
-      if: github.event_name == 'release'
-      uses: home-assistant/actions/helpers/codenotary@master
-      with:
-        source: docker://homeassistant/${{ matrix.machine }}-homeassistant:landingpage
-        user: ${{ secrets.VCN_USER }}
-        password: ${{ secrets.VCN_PASSWORD }}
-        organisation: ${{ secrets.VCN_ORG }}
