@@ -53,12 +53,13 @@ jobs:
       run: echo "BUILD_ARGS=--test" >> $GITHUB_ENV
 
     - name: Build landingpage
-      uses: home-assistant/builder@2021.03.3
+      uses: home-assistant/builder@2021.03.4
       with:
         args: |
           $BUILD_ARGS \
           --target /data \
-          --homeassistant-landingpage ${{ matrix.machine }} \
           --with-codenotary "${{ secrets.VCN_USER }}" "${{ secrets.VCN_PASSWORD }}" "${{ secrets.VCN_ORG }}" \
           --validate-from "${{ secrets.VCN_ORG }}" \
-          --docker-hub homeassistant
+          --validate-cache "${{ secrets.VCN_ORG }}" \
+          --no-latest \
+          --machine landingpage=${{ matrix.machine }}
