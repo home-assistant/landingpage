@@ -4,5 +4,5 @@ go 1.15
 
 require (
 	github.com/grandcat/zeroconf v1.0.0
-	github.com/rs/xid v1.2.1
+	github.com/rs/xid v1.3.0
 )
