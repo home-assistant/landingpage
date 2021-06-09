@@ -59,7 +59,7 @@ jobs:
         args: |
           $BUILD_ARGS \
           --target /data \
-          --with-codenotary "home-assistant.io" "${{ secrets.VCN_PASSWORD }}" "${{ secrets.VCN_ORG }}" \
+          --with-codenotary "${{ secrets.VCN_USER }}" "${{ secrets.VCN_PASSWORD }}" "home-assistant.io" \
           --validate-from "home-assistant.io" \
           --no-latest \
           --machine landingpage=${{ matrix.machine }}
