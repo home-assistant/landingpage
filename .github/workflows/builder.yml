@@ -15,6 +15,7 @@ jobs:
         machine:
           - generic-x86-64
           - intel-nuc
+          - khadas-vim3
           - odroid-c2
           - odroid-c4
           - odroid-n2
@@ -54,7 +55,7 @@ jobs:
       run: echo "BUILD_ARGS=--test" >> $GITHUB_ENV
 
     - name: Build landingpage
-      uses: home-assistant/builder@2021.06.2
+      uses: home-assistant/builder@2021.07.0
       with:
         args: |
           $BUILD_ARGS \
