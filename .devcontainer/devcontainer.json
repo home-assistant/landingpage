@@ -2,11 +2,6 @@
 	"name": "Landingpage",
 	"build": {
 		"dockerfile": "Dockerfile",
-		"args": {
-			"VARIANT": "1.15",
-			"INSTALL_NODE": "false",
-			"NODE_VERSION": "lts/*"
-		}
 	},
 	"appPort": [ "8830:8123" ],
 	"postCreateCommand": "go mod download",
