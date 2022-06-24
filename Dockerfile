@@ -29,3 +29,5 @@ FROM ${BUILD_FROM}
 WORKDIR /
 COPY --from=builder /usr/src/landingpage/landingpage /usr/bin/landingpage
 COPY rootfs /
+
+ENTRYPOINT ["/usr/bin/landingpage"]
