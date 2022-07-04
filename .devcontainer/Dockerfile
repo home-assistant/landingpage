@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/go:1.17
+FROM mcr.microsoft.com/vscode/devcontainers/go:1.18
 ENV DEVELOPMENT=True
 
 # [Option] Install Node.js
