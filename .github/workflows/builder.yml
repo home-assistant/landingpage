@@ -55,6 +55,10 @@ jobs:
       if: github.event_name != 'release'
       run: echo "BUILD_ARGS=--test" >> $GITHUB_ENV
 
+    - name: Set CSS file
+      if: matrix.machine == 'yellow'
+      run: mv rootfs/usr/share/www/static/variables.css.yellow rootfs/usr/share/www/static/variables.css
+
     - name: Build landingpage
       uses: home-assistant/builder@2022.07.0
       with:
