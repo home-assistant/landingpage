@@ -30,6 +30,7 @@ h1 {
   max-width: 432px;
   margin: 64px auto 0;
   background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, .12);
 }
 
 .header {
@@ -125,6 +126,7 @@ pre {
 
   .content {
     background-color: #1c1c1c;
+    border-color:rgba(225, 225, 225, 0.12);
   }
 }
 
