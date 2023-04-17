@@ -1,9 +1,10 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 )
 
@@ -14,7 +15,7 @@ func httpIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
-	data, _ := ioutil.ReadFile(wwwRoot + "/index.html")
+	data, _ := os.ReadFile(wwwRoot + "/index.html")
 
 	w.Write(data)
 }
@@ -37,7 +38,7 @@ func httpLogs(w http.ResponseWriter, r *http.Request) {
 	}
 	defer response.Body.Close()
 
-	data, err := ioutil.ReadAll(response.Body)
+	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("Issue with fetch the logs: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
