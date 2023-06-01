@@ -54,31 +54,30 @@ h1 {
   max-width: 400px;
   text-align: center;
 }
+.badges {
+  display: flex;
+  gap: 16px;
+  height: 56px;
+  margin-bottom: 8px;
+  justify-content: center;
+}
+.badges > a {
+  display: contents;
+}
 .suggestion {
   height: 56px;
-  padding: 0 20px;
-  margin-bottom: 16px;
+  padding: 8px 24px 8px 16px;
   display: flex;
   align-items: center;
   gap: 16px;
+  box-sizing: border-box;
 }
-.suggestion > :first-child {
-  margin-left: auto;
-}
-.suggestion > .badge {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  border-radius: 20px;
-  background-color: rgba(225, 225, 225, 0.12);
-  flex-shrink: 0;
-}
-.suggestion,
-.suggestion a {
+.suggestion {
   color: currentColor;
+  text-decoration: none;
 }
 .suggestion svg {
-  margin: auto;
+  flex-shrink: 0;
 }
 .spinner {
   width: 40px;
