@@ -15,14 +15,6 @@ body {
   font-family: Roboto, Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #03a9f4;
-}
-
-h1 {
-  margin: 20px 0 0;
-}
-
 .content {
   box-sizing: border-box;
   padding: 24px 16px;
@@ -33,24 +25,25 @@ h1 {
   border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.header {
-  text-align: center;
-  font-size: 1.96em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 300;
-}
-
 .loading {
   text-align: center;
 }
-.loading img {
-  max-width: 100px;
+.header {
+  font-size: 1.7rem;
+  font-weight: 300;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.header img {
+  width: 48px;
+  height: 48px;
 }
 
 .read-more {
-  margin: 40px auto 16px;
+  margin: 16px auto;
   max-width: 400px;
   text-align: center;
 }
@@ -61,24 +54,36 @@ h1 {
   margin-bottom: 8px;
   justify-content: center;
 }
-.badges > a {
+.badges a {
   display: contents;
+}
+.badges img {
+  min-width: 0;
 }
 .suggestion {
   height: 56px;
   padding: 8px 24px 8px 16px;
+  color: currentColor;
+  text-decoration: none;
+  transition: background-color 150ms;
   display: flex;
   align-items: center;
   gap: 16px;
   box-sizing: border-box;
 }
-.suggestion {
-  color: currentColor;
-  text-decoration: none;
+.suggestion:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.suggestion:focus-visible {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+.suggestion:active {
+  background-color: rgba(0, 0, 0, 0.12);
 }
 .suggestion svg {
   flex-shrink: 0;
 }
+
 .spinner {
   width: 40px;
   height: 40px;
@@ -86,7 +91,6 @@ h1 {
   position: relative;
   margin: 20px auto;
 }
-
 .double-bounce1,
 .double-bounce2 {
   width: 100%;
@@ -98,34 +102,11 @@ h1 {
   top: 0;
   left: 0;
 
-  -webkit-animation: sk-bounce 2s infinite ease-in-out;
   animation: sk-bounce 2s infinite ease-in-out;
 }
-
 .double-bounce2 {
-  -webkit-animation-delay: -1s;
   animation-delay: -1s;
 }
-
-pre {
-  display: block;
-  margin: auto;
-  max-width: 450px;
-  padding-bottom: 8px;
-  text-align: left;
-  white-space: pre-line;
-}
-
-@-webkit-keyframes sk-bounce {
-  0%,
-  100% {
-    -webkit-transform: scale(0);
-  }
-  50% {
-    -webkit-transform: scale(1);
-  }
-}
-
 @keyframes sk-bounce {
   0%,
   100% {
@@ -138,6 +119,18 @@ pre {
   }
 }
 
+pre {
+  display: block;
+  margin: auto;
+  max-width: 450px;
+  padding-bottom: 8px;
+  text-align: left;
+  white-space: pre-line;
+}
+pre:empty {
+  display: none;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color: #e1e1e1;
@@ -146,6 +139,16 @@ pre {
   .content {
     background-color: #1c1c1c;
     border-color: rgba(225, 225, 225, 0.12);
+  }
+
+  .suggestion:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  .suggestion:focus-visible {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+  .suggestion:active {
+    background-color: rgba(255, 255, 255, 0.12);
   }
 }
 
