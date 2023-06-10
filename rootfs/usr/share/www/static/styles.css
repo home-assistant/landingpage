@@ -83,6 +83,9 @@ body {
 .suggestion svg {
   flex-shrink: 0;
 }
+.suggestion .chevron {
+  margin-left: auto;
+}
 
 .spinner {
   width: 40px;
