@@ -1,5 +1,4 @@
-image: homeassistant/{machine}-homeassistant
-shadow_repository: ghcr.io/home-assistant
+image: ghcr.io/home-assistant/{machine}-homeassistant
 build_from:
   aarch64: scratch
   armv7: scratch
