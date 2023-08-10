@@ -37,6 +37,7 @@ jobs:
           - raspberrypi4-64
           - tinker
           - yellow
+          - green
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v3
@@ -54,7 +55,7 @@ jobs:
       run: echo "BUILD_ARGS=--test" >> $GITHUB_ENV
 
     - name: Build landingpage
-      uses: home-assistant/builder@2023.06.1
+      uses: home-assistant/builder@2023.08.0
       with:
         args: |
           $BUILD_ARGS \
