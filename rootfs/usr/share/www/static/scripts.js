@@ -74,7 +74,7 @@ function fetchLogs() {
   fetch("/observer/logs").then(function (res) {
     if (res.ok) {
       res.text().then(function (text) {
-        const logElement = document.getElementById("log");
+        var logElement = document.getElementById("log");
         logElement.innerText = logElement.showFull
           ? text
           : ""
@@ -90,7 +90,7 @@ function scheduleTry() {
   setTimeout(testAvailable, 5000);
 }
 
-let scheduleTimeout;
+var scheduleTimeout;
 
 function scheduleFetchLogs() {
   clearTimeout(scheduleTimeout);
@@ -101,7 +101,7 @@ scheduleTry();
 fetchLogs();
 
 document.getElementById("show_logs").addEventListener("click", function (event) {
-  const logElement = document.getElementById("log");
+  var logElement = document.getElementById("log");
   logElement.showFull = !logElement.showFull;
   if (logElement.showFull) {
     event.target.innerText = "Hide details";
