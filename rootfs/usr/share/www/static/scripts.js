@@ -41,19 +41,19 @@ self.fetch ||
             };
           };
         for (var c in (r.open(n.method || "get", e, !0),
-        (r.onload = function () {
-          r
-            .getAllResponseHeaders()
-            .replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, function (e, n, t) {
-              o.push((n = n.toLowerCase())),
-                u.push([n, t]),
-                (i[n] = i[n] ? i[n] + "," + t : t);
-            }),
-            t(a());
-        }),
-        (r.onerror = s),
-        (r.withCredentials = "include" == n.credentials),
-        n.headers))
+          (r.onload = function () {
+            r
+              .getAllResponseHeaders()
+              .replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, function (e, n, t) {
+                o.push((n = n.toLowerCase())),
+                  u.push([n, t]),
+                  (i[n] = i[n] ? i[n] + "," + t : t);
+              }),
+              t(a());
+          }),
+          (r.onerror = s),
+          (r.withCredentials = "include" == n.credentials),
+          n.headers))
           r.setRequestHeader(c, n.headers[c]);
         r.send(n.body || null);
       })
@@ -74,13 +74,13 @@ function fetchLogs() {
   fetch("/observer/logs").then(function (res) {
     if (res.ok) {
       res.text().then(function (text) {
-        const logElement = document.querySelector("#log");
+        const logElement = document.getElementById("log");
         logElement.innerText = logElement.showFull
           ? text
           : ""
-              .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
-              .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
-              .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
+            .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
+            .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
+            .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
       });
     }
   }, scheduleFetchLogs());
@@ -90,27 +90,47 @@ function scheduleTry() {
   setTimeout(testAvailable, 5000);
 }
 
+let scheduleTimeout;
+
 function scheduleFetchLogs() {
-  setTimeout(fetchLogs, 5000);
+  clearTimeout(scheduleTimeout);
+  scheduleTimeout = setTimeout(fetchLogs, 5000);
 }
 
 scheduleTry();
 fetchLogs();
 
-document.getElementById("spinner").addEventListener("click", function (event) {
-  const logElement = document.querySelector("#log");
-  log.showFull = !logElement.showFull;
+document.getElementById("show_logs").addEventListener("click", function (event) {
+  const logElement = document.getElementById("log");
+  logElement.showFull = !logElement.showFull;
+  if (logElement.showFull) {
+    event.target.innerText = "Hide details";
+  } else {
+    event.target.innerText = "Show details";
+  }
   fetchLogs();
 });
 
-document.addEventListener("DOMContentLoaded", (event) => {
+var dialogs = document.querySelectorAll('dialog');
+dialogs.forEach(dialog => {
+  dialogPolyfill.registerDialog(dialog);
+})
+
+document.getElementById("community").addEventListener("click", function (event) {
+  document.getElementById("dialog-community").showModal();
+});
+
+document.getElementById("app").addEventListener("click", function (event) {
+  document.getElementById("dialog-app").showModal();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
   if (
-    location.search.indexOf("client_id=http://home-assistant.io/android") !==
-      -1 ||
-    location.search.indexOf("client_id=http://home-assistant.io/iOS") !== -1
+    location.search.indexOf("homeassistant://auth-callback") !==
+    -1
   ) {
-    // Hide app links if visited from an app
-    document.querySelector("#app-links").remove();
+    // Hide app button if visited from an app
+    document.getElementById("app").remove();
   }
 });
 
@@ -145,12 +165,12 @@ tsParticles.load("particles", {
   },
   particles: {
     color: {
-      value: "#fff",
-      animation: {
-        enable: true,
-        speed: 50,
-        sync: false,
-      },
+      value: "#03a9f4",
+    },
+    animation: {
+      enable: true,
+      speed: 50,
+      sync: false,
     },
     links: {
       color: {
