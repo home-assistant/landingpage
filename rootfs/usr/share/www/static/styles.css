@@ -199,6 +199,7 @@ button.icon {
   font-size: 14px;
   font-weight: 500;
   padding: 32px 24px;
+  outline: none;
 }
 
 .block .icon {
@@ -362,8 +363,8 @@ dialog button svg {
   gap: 16px;
 }
 
-.app-qr img {
-  width: 100%;
+.app-qr a, .app-qr img {
+  flex: 1;
 }
 
 @media (prefers-color-scheme: dark) {
