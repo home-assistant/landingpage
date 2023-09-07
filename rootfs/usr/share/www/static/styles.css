@@ -223,7 +223,9 @@ button.icon {
 .block:after {
   border-radius: 12px;
 }
-
+.link-list {
+  padding: 8px 0;
+}
 .link {
   width: 100%;
   height: 100%;
