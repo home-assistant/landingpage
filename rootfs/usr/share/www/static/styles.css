@@ -198,6 +198,7 @@ button.icon {
   text-align: center;
   font-size: 14px;
   font-weight: 500;
+  padding: 32px 24px;
 }
 
 .block .icon {
