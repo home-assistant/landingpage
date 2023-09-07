@@ -183,6 +183,11 @@ button.icon {
 
 .block-container a {
   border-radius: 12px;
+  outline: none;
+}
+
+.block-container a:after {
+  border-radius: 12px;
 }
 
 @media (max-width: 550px) {
