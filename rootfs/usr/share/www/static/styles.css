@@ -181,6 +181,10 @@ button.icon {
   margin: 16px auto;
 }
 
+.block-container a {
+  border-radius: 12px;
+}
+
 @media (max-width: 550px) {
   .block-container {
     grid-template-columns: 1fr;
@@ -296,14 +300,16 @@ dialog::backdrop {
 }
 
 dialog button {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+	  height: 48px;
+	  padding: 12px;
+	  margin: -12px;
   border-radius: 50%;
 }
 
 dialog button svg {
-  height: 100%;
-  width: 100%;
+  height: 24px;
+  width: 24px;
 }
 
 .headline {

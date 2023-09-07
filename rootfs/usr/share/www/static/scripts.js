@@ -100,7 +100,8 @@ function scheduleFetchLogs() {
 scheduleTry();
 fetchLogs();
 
-document.getElementById("show_logs").addEventListener("click", function (event) {
+document.getElementById("show_logs").addEventListener("click", toggleLogs);
+function toggleLogs(event) {
   var logElement = document.getElementById("log");
   logElement.showFull = !logElement.showFull;
   if (logElement.showFull) {
@@ -109,20 +110,28 @@ document.getElementById("show_logs").addEventListener("click", function (event) 
     event.target.innerText = "Show details";
   }
   fetchLogs();
-});
+}
 
 var dialogs = document.querySelectorAll('dialog');
 dialogs.forEach(dialog => {
   dialogPolyfill.registerDialog(dialog);
 })
 
-document.getElementById("community").addEventListener("click", function (event) {
-  document.getElementById("dialog-community").showModal();
-});
+var communityBtn = document.getElementById("community")
+communityBtn.addEventListener("click", showDialogCommunity)
+communityBtn.addEventListener("keydown", function (ev) { if (["Enter", " "].includes(ev.key)) { ev.preventDefault(); showDialogCommunity() } });
 
-document.getElementById("app").addEventListener("click", function (event) {
+function showDialogCommunity() {
+  document.getElementById("dialog-community").showModal();
+}
+
+var appBtn = document.getElementById("app")
+appBtn.addEventListener("click", showDialogApp)
+appBtn.addEventListener("keydown", function (ev) { if (["Enter", " "].includes(ev.key)) { ev.preventDefault(); showDialogApp() } });
+
+function showDialogApp() {
   document.getElementById("dialog-app").showModal();
-});
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   if (
