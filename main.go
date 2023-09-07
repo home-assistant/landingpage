@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/grandcat/zeroconf"
 )
@@ -36,6 +38,22 @@ func main() {
 	defer mdns.Shutdown()
 
 	// Run webserver
-	log.Print("Start webserver on http://0.0.0.0:8123")
-	http.ListenAndServe(":8123", nil)
+	go func() {
+		log.Print("Start webserver on http://0.0.0.0:8123")
+		if err := http.ListenAndServe(":8123", nil); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	signalChannel := make(chan os.Signal, 2)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
+	for {
+		sig := <-signalChannel
+		switch sig {
+		case os.Interrupt:
+			return
+		case syscall.SIGTERM:
+			return
+		}
+	}
 }
