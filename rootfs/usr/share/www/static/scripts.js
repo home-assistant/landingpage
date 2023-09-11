@@ -70,24 +70,25 @@ function testAvailable() {
   }, scheduleTry);
 }
 
+var errorCheck = /^[\d -:]+ERROR(.*)/gm
+
 function fetchLogs() {
   fetch("/observer/logs").then(function (res) {
     if (res.ok) {
       res.text().then(function (text) {
         var logElement = document.getElementById("log");
-        if (text.includes("ERROR")) {
+        if (errorCheck.test(text)) {
           document.body.classList.add("error");
-          document.getElementById("show_logs").classList.add("hidden");
+          document.getElementById("show_logs").innerText = "Download raw logs";
           logElement.showFull = true;
         }
         if (!logElement.showFull) {
           return;
         }
         var scrolledDown = logElement.scrollTop + logElement.clientHeight === logElement.scrollHeight;
-        logElement.innerText = text
-          .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
-          .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
-          .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
+        logElement.innerHTML = text
+          .replace(/^[\[\d \-:\]]*/gm, "")
+          .replace(/^(INFO|WARNING|ERROR)\s\(\w+\)\s(.*)\n/gm, "<span class='$1'>$2</span>\n")
         if (scrolledDown) {
           // Scroll content down if it was already scrolled down
           logElement.scrollTop = logElement.scrollHeight;
@@ -113,6 +114,17 @@ fetchLogs();
 
 document.getElementById("show_logs").addEventListener("click", toggleLogs);
 function toggleLogs(event) {
+  if (document.body.classList.contains("error")) {
+    const a = document.createElement("a");
+    a.target = "_blank";
+    a.href = "/observer/logs";
+    a.download = "logs.txt";
+
+    document.body.appendChild(a);
+    a.dispatchEvent(new MouseEvent("click"));
+    document.body.removeChild(a);
+    return;
+  }
   var logElement = document.getElementById("log");
   logElement.showFull = !logElement.showFull;
   if (logElement.showFull) {

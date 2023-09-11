@@ -45,6 +45,7 @@ body {
   display: flex;
   align-items: center;
 }
+
 .alert::after {
   position: absolute;
   top: 0;
@@ -57,20 +58,18 @@ body {
   border-radius: 4px;
   background-color: #db4437;
 }
+
 .alert-icon {
   fill: #db4437;
   width: 24px;
   flex-shrink: 0;
 }
+
 .alert-content {
   font-size: 14px;
   text-align: left;
   margin-left: 8px;
   margin-right: 0;
-}
-
-.hidden {
-  display: none;
 }
 
 .header {
@@ -276,9 +275,11 @@ button.icon {
 .block:after {
   border-radius: 12px;
 }
+
 .link-list {
   padding: 8px 0;
 }
+
 .link {
   width: 100%;
   height: 100%;
@@ -343,6 +344,18 @@ pre:empty {
   display: none;
 }
 
+pre .INFO {
+  color: #039be5;
+}
+
+pre .ERROR {
+  color: #db4437;
+}
+
+pre .WARNING {
+  color: #ffa600;
+}
+
 dialog {
   background-color: #ffffff;
   border: none !important;
@@ -359,9 +372,9 @@ dialog::backdrop {
 
 dialog button {
   width: 48px;
-	  height: 48px;
-	  padding: 12px;
-	  margin: -12px;
+  height: 48px;
+  padding: 12px;
+  margin: -12px;
   border-radius: 50%;
 }
 
@@ -417,7 +430,8 @@ dialog button svg {
   gap: 16px;
 }
 
-.app-qr a, .app-qr img {
+.app-qr a,
+.app-qr img {
   flex: 1;
 }
 
@@ -427,7 +441,8 @@ dialog button svg {
     background-color: #111111;
   }
 
-  .content {
+  .content,
+  pre {
     background-color: #1c1c1c;
     border-color: rgba(225, 225, 225, 0.12);
   }
