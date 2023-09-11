@@ -122,7 +122,7 @@ function toggleLogs(event) {
     a.target = "_blank";
     a.href = "/observer/logs";
     a.download = "logs.txt";
-  
+
     document.body.appendChild(a);
     a.dispatchEvent(new MouseEvent("click"));
     document.body.removeChild(a);
