@@ -26,6 +26,53 @@ body {
   font-size: 12px;
 }
 
+.error .state-normal {
+  display: none;
+}
+
+.state-error {
+  display: none;
+}
+
+.error .state-error {
+  display: block;
+}
+
+.alert {
+  position: relative;
+  padding: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+.alert::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  content: "";
+  border-radius: 4px;
+  background-color: #db4437;
+}
+.alert-icon {
+  fill: #db4437;
+  width: 24px;
+  flex-shrink: 0;
+}
+.alert-content {
+  font-size: 14px;
+  text-align: left;
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+.hidden {
+  display: none;
+}
+
 .header {
   text-align: center;
   margin-top: 32px;
@@ -288,6 +335,8 @@ pre {
   border-radius: 8px;
   padding: 16px;
   font-family: Roboto Mono, monospace;
+  max-height: 400px;
+  overflow: scroll;
 }
 
 pre:empty {
