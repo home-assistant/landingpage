@@ -441,7 +441,7 @@ dialog button svg {
     background-color: #111111;
   }
 
-  .content {
+  .content, pre {
     background-color: #1c1c1c;
     border-color: rgba(225, 225, 225, 0.12);
   }
