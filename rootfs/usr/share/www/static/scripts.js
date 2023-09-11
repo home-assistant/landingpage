@@ -79,7 +79,7 @@ function fetchLogs() {
         var logElement = document.getElementById("log");
         if (errorCheck.test(text)) {
           document.body.classList.add("error");
-          document.getElementById("show_logs").classList.add("hidden");
+          document.getElementById("show_logs").innerText = "Download raw logs";
           logElement.showFull = true;
         }
         if (!logElement.showFull) {
@@ -117,6 +117,17 @@ fetchLogs();
 
 document.getElementById("show_logs").addEventListener("click", toggleLogs);
 function toggleLogs(event) {
+  if (document.body.classList.contains("error")) {
+    const a = document.createElement("a");
+    a.target = "_blank";
+    a.href = "/observer/logs";
+    a.download = "logs.txt";
+  
+    document.body.appendChild(a);
+    a.dispatchEvent(new MouseEvent("click"));
+    document.body.removeChild(a);
+    return;
+  }
   var logElement = document.getElementById("log");
   logElement.showFull = !logElement.showFull;
   if (logElement.showFull) {

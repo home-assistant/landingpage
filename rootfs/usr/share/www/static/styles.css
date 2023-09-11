@@ -72,10 +72,6 @@ body {
   margin-right: 0;
 }
 
-.hidden {
-  display: none;
-}
-
 .header {
   text-align: center;
   margin-top: 32px;
@@ -347,10 +343,6 @@ pre {
 pre:empty {
   display: none;
 }
-
-/* pre span:nth-child(even) {
-  background: green;
-} */
 
 pre .info {
   color: #039be5;
