@@ -70,12 +70,14 @@ function testAvailable() {
   }, scheduleTry);
 }
 
+var errorCheck = /^[\d -:]+ERROR(.*)/gm
+
 function fetchLogs() {
   fetch("/observer/logs").then(function (res) {
     if (res.ok) {
       res.text().then(function (text) {
         var logElement = document.getElementById("log");
-        if (text.includes("ERROR")) {
+        if (errorCheck.test(text)) {
           document.body.classList.add("error");
           document.getElementById("show_logs").classList.add("hidden");
           logElement.showFull = true;
@@ -84,10 +86,12 @@ function fetchLogs() {
           return;
         }
         var scrolledDown = logElement.scrollTop + logElement.clientHeight === logElement.scrollHeight;
-        logElement.innerText = text
-          .replace(/\s[A-Z]+\s\(\w+\)\s\[[\w.]+\]/gi, "")
-          .replace(/\d{2}-\d{2}-\d{2}\s/gi, "")
-          .replace(/\d{2}:\d{2}:\d{2}\s/gi, "");
+        logElement.innerHTML = text
+          .replace(/^[\[\d \-:\]]*/gm, "")
+          .replace(/^INFO\s\(\w+\)\s/gm, "<span class='info'>")
+          .replace(/^WARNING\s\(\w+\)\s/gm, "<span class='warning'>")
+          .replace(/^ERROR\s\(\w+\)\s/gm, "<span class='error'>")
+          .replace(/\n/gm, "</span>\n");
         if (scrolledDown) {
           // Scroll content down if it was already scrolled down
           logElement.scrollTop = logElement.scrollHeight;
