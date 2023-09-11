@@ -344,15 +344,15 @@ pre:empty {
   display: none;
 }
 
-pre .info {
+pre .INFO {
   color: #039be5;
 }
 
-pre .error {
+pre .ERROR {
   color: #db4437;
 }
 
-pre .warning {
+pre .WARNING {
   color: #ffa600;
 }
 

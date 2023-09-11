@@ -88,10 +88,7 @@ function fetchLogs() {
         var scrolledDown = logElement.scrollTop + logElement.clientHeight === logElement.scrollHeight;
         logElement.innerHTML = text
           .replace(/^[\[\d \-:\]]*/gm, "")
-          .replace(/^INFO\s\(\w+\)\s/gm, "<span class='info'>")
-          .replace(/^WARNING\s\(\w+\)\s/gm, "<span class='warning'>")
-          .replace(/^ERROR\s\(\w+\)\s/gm, "<span class='error'>")
-          .replace(/\n/gm, "</span>\n");
+          .replace(/^(INFO|WARNING|ERROR)\s\(\w+\)\s(.*)\n/gm, "<span class='$1'>$2</span>\n")
         if (scrolledDown) {
           // Scroll content down if it was already scrolled down
           logElement.scrollTop = logElement.scrollHeight;
