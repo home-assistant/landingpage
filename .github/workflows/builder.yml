@@ -63,5 +63,4 @@ jobs:
           --no-latest \
           --cosign \
           --machine landingpage=${{ matrix.machine }}
-      env:
-        CAS_API_KEY: ${{ secrets.CAS_TOKEN }}
+
