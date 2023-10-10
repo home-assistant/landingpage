@@ -26,6 +26,10 @@ body {
   font-size: 12px;
 }
 
+.no-break {
+  white-space: nowrap;
+}
+
 .error .state-normal {
   display: none;
 }
