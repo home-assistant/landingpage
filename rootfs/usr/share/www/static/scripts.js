@@ -61,7 +61,7 @@ self.fetch ||
   });
 
 function testAvailable() {
-  fetch("./manifest.json").then(function (res) {
+  fetch("/manifest.json").then(function (res) {
     if (res.ok) {
       location.reload();
     } else {
