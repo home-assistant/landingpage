@@ -93,7 +93,6 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 
 	// Update the request path to be forwarded
 	r.URL.Path = "/" + subPath + cleanPath
-	log.Printf("Sanitized and remapped path: %s", r.URL.Path)
 
 	// Create the reverse proxy
 	proxy := httputil.NewSingleHostReverseProxy(u)
