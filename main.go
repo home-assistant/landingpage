@@ -27,6 +27,8 @@ func main() {
 	http.HandleFunc("/api/", httpUnauthorized)
 	http.HandleFunc("/auth/token", httpBad)
 	http.HandleFunc("/observer/logs", httpLogs)
+	http.HandleFunc("/supervisor/resolution/", httpSupervisorProxy)
+	http.HandleFunc("/supervisor/network/", httpSupervisorProxy)
 
 	// Serve static help files
 	staticFiles := http.FileServer(http.Dir(wwwRoot))

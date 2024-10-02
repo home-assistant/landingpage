@@ -4,8 +4,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
+	"path"
 	"regexp"
+	"strings"
 )
 
 var regexASCII = regexp.MustCompile(`\[\d+m`)
@@ -47,4 +51,56 @@ func httpLogs(w http.ResponseWriter, r *http.Request) {
 
 	logs := regexASCII.ReplaceAllLiteralString(string(data), "")
 	w.Write([]byte(logs))
+}
+
+func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Proxy request: %s", r.URL.Path)
+
+	// Base Supervisor URL
+	u, err := url.Parse("http://supervisor/")
+	if err != nil {
+		// Handle error in parsing URL
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// Strip "/supervisor/" from the path
+	trimmedPath := strings.TrimPrefix(r.URL.Path, "/supervisor/")
+
+	// Split the path into parts, the first part is the subpath (e.g., resolution or network)
+	parts := strings.SplitN(trimmedPath, "/", 2)
+	if len(parts) < 2 {
+		http.Error(w, "Bad request: missing path", http.StatusBadRequest)
+		log.Printf("Invalid path: %s", r.URL.Path)
+		return
+	}
+
+	// Extract subpath (e.g., resolution or network)
+	subPath := parts[0]
+
+	// The remainder path (after the subpath) to be sanitized
+	remainderPath := "/" + parts[1]
+
+	// Clean the remainder path to avoid path traversal attacks
+	cleanPath := path.Clean(remainderPath)
+
+	// Ensure it's under the intended subpath (e.g., /resolution or /network)
+	if cleanPath != remainderPath {
+		http.Error(w, "Forbidden: Invalid path", http.StatusForbidden)
+		log.Printf("Blocked path traversal attempt: %s", cleanPath)
+		return
+	}
+
+	// Update the request path to be forwarded
+	r.URL.Path = "/" + subPath + cleanPath
+	log.Printf("Sanitized and remapped path: %s", r.URL.Path)
+
+	// Create the reverse proxy
+	proxy := httputil.NewSingleHostReverseProxy(u)
+
+	// Add authorization header
+	r.Header.Add("Authorization", "Bearer "+os.Getenv("SUPERVISOR_TOKEN"))
+
+	// Forward the request
+	proxy.ServeHTTP(w, r)
 }
