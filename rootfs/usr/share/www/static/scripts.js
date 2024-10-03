@@ -70,7 +70,10 @@ function testAvailable() {
   }, scheduleTry);
 }
 
-var errorCheck = /^[\d -:]+ERROR(.*)/gm
+var errorCheck = /^[\d -:]+(ERROR|CRITICAL)(.*)/gm
+
+const regexRemoveTimestamp = /^[\[\d \-:.\]]*/gm
+const regexColorLines = /^(DEBUG|INFO|WARNING|ERROR|CRITICAL)\s\(\w+\)\s(.*)\n/gm
 
 function fetchLogs() {
   fetch("/observer/logs").then(function (res) {
@@ -87,8 +90,8 @@ function fetchLogs() {
         }
         var scrolledDown = logElement.scrollTop + logElement.clientHeight === logElement.scrollHeight;
         logElement.innerHTML = text
-          .replace(/^[\[\d \-:.\]]*/gm, "")
-          .replace(/^(INFO|WARNING|ERROR)\s\(\w+\)\s(.*)\n/gm, "<span class='$1'>$2</span>\n")
+          .replace(regexRemoveTimestamp, "")
+          .replace(regexColorLines, "<span class='$1'>$2</span>\n")
         if (scrolledDown) {
           // Scroll content down if it was already scrolled down
           logElement.scrollTop = logElement.scrollHeight;

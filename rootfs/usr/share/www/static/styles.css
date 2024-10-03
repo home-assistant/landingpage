@@ -348,11 +348,15 @@ pre:empty {
   display: none;
 }
 
-pre .INFO {
+pre .DEBUG {
   color: #039be5;
 }
 
-pre .ERROR {
+pre .INFO {
+  color: #43a047;
+}
+
+pre .ERROR, pre .CRITICAL {
   color: #db4437;
 }
 
