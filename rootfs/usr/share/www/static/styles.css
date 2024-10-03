@@ -30,15 +30,15 @@ body {
   white-space: nowrap;
 }
 
-.error .state-normal {
+.supervisor-error .state-normal {
   display: none;
 }
 
-.state-error {
+#state-error {
   display: none;
 }
 
-.error .state-error {
+.supervisor-error #state-error {
   display: block;
 }
 
@@ -60,6 +60,9 @@ body {
   pointer-events: none;
   content: "";
   border-radius: 4px;
+}
+
+.error .alert::after {
   background-color: #db4437;
 }
 
@@ -74,6 +77,31 @@ body {
   text-align: left;
   margin-left: 8px;
   margin-right: 0;
+}
+
+#state-network-issue {
+  display: none;
+}
+
+.network-issue #state-network-issue {
+  display: block;
+}
+
+.network-issue .state-normal {
+  display: none;
+}
+
+.warning .alert-icon {
+  fill: #ffa600;
+}
+
+.warning .alert::after {
+  background-color: #ffa600;
+}
+
+.warning .actions {
+  display: flex;
+  margin-bottom: 16px;
 }
 
 .header {
