@@ -124,7 +124,7 @@ function fetchNetworkInfo() {
 
       if (document.body.classList.contains("network-issue")) {
         const primaryInterface = data.data.interfaces.find(intf => intf.primary);
-        var dnsElement = document.getElementById("current_dns");
+        const dnsElement = document.getElementById("current_dns");
         if (!primaryInterface) {
           dnsElement.innerText = "(no primary interface)";
         } else {
@@ -136,7 +136,7 @@ function fetchNetworkInfo() {
   }, scheduleFetchNetworkInfo());
 }
 
-var scheduleNetworkTimeout;
+const scheduleNetworkTimeout;
 
 function scheduleFetchNetworkInfo() {
   clearTimeout(scheduleNetworkTimeout);
