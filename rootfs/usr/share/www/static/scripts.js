@@ -121,6 +121,10 @@ function fetchNetworkInfo() {
       if (!data.data.host_internet) {
         document.body.classList.add("network-issue");
       }
+      else
+      {
+        document.body.classList.remove("network-issue");
+      }
 
       if (document.body.classList.contains("network-issue")) {
         const primaryInterface = data.data.interfaces.find(intf => intf.primary);
