@@ -175,11 +175,11 @@ function toggleLogs(event) {
   }
 }
 
-document.getElementById("try_cloudflare_dns").addEventListener("click", function() {
+document.getElementById("use_cloudflare_dns").addEventListener("click", function() {
   setDns(["1.1.1.1", "1.0.0.1"], ["2606:4700:4700::1111", "2606:4700:4700::1001"]);
 });
 
-document.getElementById("try_google_dns").addEventListener("click", function() {
+document.getElementById("use_google_dns").addEventListener("click", function() {
   setDns(["8.8.8.8", "8.8.4.4"], ["2001:4860:4860::8888", "2001:4860:4860::8844"]);
 });
 
