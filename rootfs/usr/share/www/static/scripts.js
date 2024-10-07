@@ -81,7 +81,7 @@ function fetchLogs() {
       res.text().then(function (text) {
         var logElement = document.getElementById("log");
         if (errorCheck.test(text)) {
-          document.body.classList.add("error");
+          document.body.classList.add("supervisor-error");
           document.getElementById("show_logs").innerText = "Download raw logs";
           logElement.showFull = true;
         }
@@ -98,22 +98,60 @@ function fetchLogs() {
         }
       });
     }
-  }, scheduleFetchLogs());
+  });
+  scheduleFetchLogs();
 }
 
 function scheduleTry() {
   setTimeout(testAvailable, 5000);
 }
 
-var scheduleTimeout;
+let scheduleTimeout;
 
 function scheduleFetchLogs() {
   clearTimeout(scheduleTimeout);
   scheduleTimeout = setTimeout(fetchLogs, 5000);
 }
 
+function fetchSupervisorInfo() {
+  fetch("/supervisor/network/info").then(function (res) {
+    if (!res.ok)
+      return;
+
+    res.json().then(function (data) {
+      if (!data.data.host_internet) {
+        document.body.classList.add("network-issue");
+      }
+      else
+      {
+        document.body.classList.remove("network-issue");
+      }
+
+      if (document.body.classList.contains("network-issue")) {
+        const primaryInterface = data.data.interfaces.find(intf => intf.primary);
+        const dnsElement = document.getElementById("current_dns");
+        if (!primaryInterface) {
+          dnsElement.innerText = "(no primary interface)";
+        } else {
+          dnsElement.innerText = [...(primaryInterface.ipv4?.nameservers || []), ...(primaryInterface.ipv6?.nameservers || [])].join(', ');
+        }
+      }
+
+    });
+  });
+  scheduleFetchSupervisorInfo();
+}
+
+let scheduleSupervisorTimeout;
+
+function scheduleFetchSupervisorInfo() {
+  clearTimeout(scheduleSupervisorTimeout);
+  scheduleSupervisorTimeout = setTimeout(fetchSupervisorInfo, 5000);
+}
+
 scheduleTry();
 fetchLogs();
+fetchSupervisorInfo();
 
 document.getElementById("show_logs").addEventListener("click", toggleLogs);
 function toggleLogs(event) {
@@ -137,6 +175,72 @@ function toggleLogs(event) {
     logElement.innerText = "";
     event.target.innerText = "Show details";
   }
+}
+
+document.getElementById("use_cloudflare_dns").addEventListener("click", function() {
+  setDns(["1.1.1.1", "1.0.0.1"], ["2606:4700:4700::1111", "2606:4700:4700::1001"]);
+});
+
+document.getElementById("use_google_dns").addEventListener("click", function() {
+  setDns(["8.8.8.8", "8.8.4.4"], ["2001:4860:4860::8888", "2001:4860:4860::8844"]);
+});
+
+function setDns(ipv4nameservers, ipv6nameservers) {
+  // Step 1: Fetch the primary network interface from the /network/info endpoint
+  fetch("/supervisor/network/info", {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+  })
+  .then(response => {
+      if (!response.ok) {
+          throw new Error('Failed to fetch network info');
+      }
+      return response.json();
+  })
+  .then(data => {
+      // Step 2: Find the primary interface
+      const primaryInterface = data.data.interfaces.find(intf => intf.primary && intf.enabled);
+      if (!primaryInterface) {
+          throw new Error('No primary interface found');
+      }
+
+      // Step 3: Update the DNS settings for the primary interface
+      const payload = {
+          ipv4: {
+              method: "auto",
+              nameservers: ipv4nameservers
+          },
+          ipv6: {
+              method: "auto",
+              nameservers: ipv6nameservers
+          }
+      };
+
+      return fetch(`/supervisor/network/interface/${primaryInterface.interface}/update`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+      });
+  })
+  .then(response => {
+      if (!response.ok) {
+          throw new Error('Failed to update the interface');
+      }
+      fetchSupervisorInfo();
+      return response.json();
+  })
+  .then(data => {
+      console.log('Success:', data);
+      // Optionally handle the success case, e.g., updating the UI or showing a message
+  })
+  .catch((error) => {
+      console.error('Error:', error);
+      // Optionally handle the error case, e.g., showing an error message
+  });
 }
 
 var dialogs = document.querySelectorAll('dialog');
