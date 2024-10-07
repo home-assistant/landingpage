@@ -140,7 +140,7 @@ function fetchNetworkInfo() {
   }, scheduleFetchNetworkInfo());
 }
 
-const scheduleNetworkTimeout;
+var scheduleNetworkTimeout;
 
 function scheduleFetchNetworkInfo() {
   clearTimeout(scheduleNetworkTimeout);
