@@ -55,11 +55,14 @@
         </svg>
         <div class="alert-content">
           <p>
-          There is a network issue on the host operating system, which prevents Home Assistant from installing completely.
-          This might be DNS related, currently using <span id="current_dns"></span> as DNS.
+            Home Assistant OS detected a networking issue in your setup. As part of the initial
+            setup, Home Assistant OS downloads the latest version of Home Assistant Core. This
+            networking issue prevents this download. The network issue might be DNS related.
+            The currently used DNS service is: <span id="current_dns"></span>.
           </p>
           <p>
-          Update your routers configuration if you want to use a custom DNS. Alternatively, you can try a public DNS.
+            To resolve this, you can try a different DNS server. Select one of the options below.
+            Alternatively, change your router configuration to use your own custom DNS server. 
           </p>
         </div>
       </div>
