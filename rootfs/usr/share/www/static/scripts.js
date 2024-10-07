@@ -106,7 +106,7 @@ function scheduleTry() {
   setTimeout(testAvailable, 5000);
 }
 
-var scheduleTimeout;
+let scheduleTimeout;
 
 function scheduleFetchLogs() {
   clearTimeout(scheduleTimeout);
@@ -142,7 +142,7 @@ function fetchSupervisorInfo() {
   scheduleFetchSupervisorInfo();
 }
 
-var scheduleSupervisorTimeout;
+let scheduleSupervisorTimeout;
 
 function scheduleFetchSupervisorInfo() {
   clearTimeout(scheduleSupervisorTimeout);
