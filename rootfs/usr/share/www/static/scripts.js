@@ -98,7 +98,8 @@ function fetchLogs() {
         }
       });
     }
-  }, scheduleFetchLogs());
+  });
+  scheduleFetchLogs();
 }
 
 function scheduleTry() {
@@ -112,7 +113,7 @@ function scheduleFetchLogs() {
   scheduleTimeout = setTimeout(fetchLogs, 5000);
 }
 
-function fetchNetworkInfo() {
+function fetchSupervisorInfo() {
   fetch("/supervisor/network/info").then(function (res) {
     if (!res.ok)
       return;
@@ -137,19 +138,20 @@ function fetchNetworkInfo() {
       }
 
     });
-  }, scheduleFetchNetworkInfo());
+  });
+  scheduleFetchSupervisorInfo();
 }
 
-var scheduleNetworkTimeout;
+var scheduleSupervisorTimeout;
 
-function scheduleFetchNetworkInfo() {
-  clearTimeout(scheduleNetworkTimeout);
-  scheduleNetworkTimeout = setTimeout(fetchNetworkInfo, 5000);
+function scheduleFetchSupervisorInfo() {
+  clearTimeout(scheduleSupervisorTimeout);
+  scheduleSupervisorTimeout = setTimeout(fetchSupervisorInfo, 5000);
 }
 
 scheduleTry();
 fetchLogs();
-fetchNetworkInfo();
+fetchSupervisorInfo();
 
 document.getElementById("show_logs").addEventListener("click", toggleLogs);
 function toggleLogs(event) {
@@ -228,7 +230,7 @@ function setDns(ipv4nameservers, ipv6nameservers) {
       if (!response.ok) {
           throw new Error('Failed to update the interface');
       }
-      fetchNetworkInfo();
+      fetchSupervisorInfo();
       return response.json();
   })
   .then(data => {
