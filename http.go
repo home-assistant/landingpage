@@ -57,7 +57,13 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Proxy request: %s", r.URL.Path)
 
 	// Base Supervisor URL
-	u, err := url.Parse("http://supervisor/")
+	supervisorHost := "supervisor"
+
+	if development && os.Getenv("SUPERVISOR_HOST") != "" {
+		supervisorHost = os.Getenv("SUPERVISOR_HOST")
+	}
+
+	u, err := url.Parse("http://" + supervisorHost + "/")
 	if err != nil {
 		// Handle error in parsing URL
 		w.Write([]byte(err.Error()))
@@ -75,7 +81,7 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract subpath (e.g., resolution or network)
+	// Extract subPath (e.g., resolution or network)
 	subPath := parts[0]
 
 	// The remainder path (after the subpath) to be sanitized
@@ -99,6 +105,14 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 
 	// Add authorization header
 	r.Header.Add("Authorization", "Bearer "+os.Getenv("SUPERVISOR_TOKEN"))
+
+	if cleanPath == "/logs" {
+		// for logs download add text/plain headers
+		r.Header.Add("Accept", "text/plain")
+	} else if cleanPath == "/logs/follow" {
+		// Set FlushInterval to enable streaming
+		proxy.FlushInterval = -1
+	}
 
 	// Forward the request
 	proxy.ServeHTTP(w, r)
