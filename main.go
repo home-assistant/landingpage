@@ -17,7 +17,9 @@ var development bool
 func main() {
 	development = (os.Getenv("DEVELOPMENT") == "True")
 
-	if development {
+	if development && os.Getenv("FRONTEND_PATH") != "" {
+		wwwRoot = os.Getenv("FRONTEND_PATH") + "/landing-page/dist/"
+	} else if development {
 		wwwRoot = "./rootfs/usr/share/www/"
 	} else {
 		wwwRoot = "/usr/share/www/"
@@ -27,6 +29,8 @@ func main() {
 	http.HandleFunc("/api/", httpUnauthorized)
 	http.HandleFunc("/auth/token", httpBad)
 	http.HandleFunc("/observer/logs", httpLogs)
+	http.HandleFunc("/supervisor/supervisor/logs", httpSupervisorProxy)
+	http.HandleFunc("/supervisor/supervisor/logs/follow", httpSupervisorProxy)
 	http.HandleFunc("/supervisor/resolution/", httpSupervisorProxy)
 	http.HandleFunc("/supervisor/network/", httpSupervisorProxy)
 
