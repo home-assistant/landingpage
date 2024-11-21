@@ -36,7 +36,9 @@ func main() {
 
 	// Serve static help files
 	staticFiles := http.FileServer(http.Dir(wwwRoot))
-	http.Handle("/landingpage/", http.StripPrefix("/landingpage", staticFiles))
+	http.Handle("/static/", staticFiles)
+	http.Handle("/frontend_es5/", staticFiles)
+	http.Handle("/frontend_latest/", staticFiles)
 
 	// Start mDNS broadcast
 	log.Print("Start mDNS broadcast")
