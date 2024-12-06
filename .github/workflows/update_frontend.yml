@@ -1,0 +1,81 @@
+name: Update frontend
+
+on:
+  schedule: # once a day
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-version-and-create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Get latest frontend release
+        id: latest_frontend_version
+        uses: abatilo/release-info-action@v1.3.3
+        with:
+          owner: home-assistant
+          repo: frontend
+      - name: Check if version is up to date
+        id: check_version
+        run: |
+          LANDING_PAGE_VERSION=$(cat .ha-frontend-version)
+          LATEST_VERSION=${{ steps.latest_frontend_version.outputs.latest_tag }}
+          echo "LANDING_PAGE_VERSION=$LANDING_PAGE_VERSION" >> $GITHUB_ENV
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+          if [[ ! "$LANDING_PAGE_VERSION" < "$LATEST_VERSION" ]]; then
+            echo "Frontend version is up to date"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Check if there is no open PR with this version
+        if: steps.check_version.outputs.skip != 'true'
+        id: check_existing_pr
+        run: |
+          PR=$(gh pr list --state open --base main --json title --search "Autoupdate frontend to version $LATEST_VERSION")
+          if [[ "$PR" != "[]" ]]; then
+            echo "Skipping - There is already a PR open for version $LATEST_VERSION"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Get old version PRs
+        if: steps.check_version.outputs.skip != 'true' && steps.check_existing_pr.outputs.skip != 'true'
+        id: get_old_prs
+        run: |
+          OLD_PRS=$(gh pr list --state open --base main --json number --search "Autoupdate frontend to version")
+          echo "OLD_PRS=$OLD_PRS" >> $GITHUB_ENV
+          if [[ "$OLD_PRS" != "[]" ]]; then
+            echo "old_prs_found=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Close existing PRs of older version
+        if: steps.check_version.outputs.skip != 'true' && steps.check_existing_pr.outputs.skip != 'true' && steps.get_old_prs.outputs.old_prs_found == 'true'
+        run: |
+          apt-get install -y jq
+          for pr_number in $(jq -r '.[] | .number' <<< $OLD_PRS); do
+            gh pr close $pr_number --delete-branch --comment "Closed automatically because a newer frontend version is available"
+          done
+      - name: Clear www folder
+        if: steps.check_version.outputs.skip != 'true' && steps.check_existing_pr.outputs.skip != 'true'
+        run: |
+          rm -rf rootfs/usr/share/www/*
+      - name: Update version file
+        if: steps.check_version.outputs.skip != 'true' && steps.check_existing_pr.outputs.skip != 'true'
+        run: |
+          echo "${{ steps.latest_frontend_version.outputs.latest_tag }}" > .ha-frontend-version
+      - name: Download release assets
+        if: steps.check_version.outputs.skip != 'true' && steps.check_existing_pr.outputs.skip != 'true'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'home-assistant/frontend'
+          tag: ${{ steps.latest_frontend_version.outputs.latest_tag }}
+          fileName: home_assistant_frontend_landingpage-${{ steps.latest_frontend_version.outputs.latest_tag }}.tar.gz
+          extract: true
+          out-file-path: rootfs/usr/share/www/
+      - name: Create PR
+        if: steps.check_version.outputs.skip != 'true' && steps.check_existing_pr.outputs.skip != 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "Autoupdate frontend to version ${{ steps.latest_frontend_version.outputs.latest_tag }}"
+          branch: autoupdate-frontend-${{ steps.latest_frontend_version.outputs.latest_tag }}
+          base: main
+          sign-commits: true
+          title: "Autoupdate frontend to version ${{ steps.latest_frontend_version.outputs.latest_tag }}"
