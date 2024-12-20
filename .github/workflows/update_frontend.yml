@@ -47,6 +47,8 @@ jobs:
     needs: check-version
     if: needs.check-version.outputs.skip != 'true'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Clear www folder
         run: |
           rm -rf rootfs/usr/share/www/*
