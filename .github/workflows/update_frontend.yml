@@ -34,6 +34,8 @@ jobs:
       - name: Check if there is no open PR with this version
         if: steps.check_version.outputs.skip != 'true'
         id: check_existing_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR=$(gh pr list --state open --base main --json title --search "Autoupdate frontend to version $LATEST_VERSION")
           if [[ "$PR" != "[]" ]]; then
@@ -45,6 +47,8 @@ jobs:
     needs: check-version
     if: needs.check-version.outputs.skip != 'true'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Clear www folder
         run: |
           rm -rf rootfs/usr/share/www/*
