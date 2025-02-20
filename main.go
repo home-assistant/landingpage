@@ -29,6 +29,7 @@ func main() {
 	http.HandleFunc("/api/", httpUnauthorized)
 	http.HandleFunc("/auth/token", httpBad)
 	http.HandleFunc("/observer/logs", httpLogs)
+	http.HandleFunc("/supervisor/supervisor/ping", httpSupervisorProxy)
 	http.HandleFunc("/supervisor/supervisor/logs", httpSupervisorProxy)
 	http.HandleFunc("/supervisor/supervisor/logs/follow", httpSupervisorProxy)
 	http.HandleFunc("/supervisor/resolution/", httpSupervisorProxy)
