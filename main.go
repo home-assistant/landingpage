@@ -29,10 +29,11 @@ func main() {
 	http.HandleFunc("/api/", httpUnauthorized)
 	http.HandleFunc("/auth/token", httpBad)
 	http.HandleFunc("/observer/logs", httpLogs)
-	http.HandleFunc("/supervisor/supervisor/logs", httpSupervisorProxy)
-	http.HandleFunc("/supervisor/supervisor/logs/follow", httpSupervisorProxy)
-	http.HandleFunc("/supervisor/resolution/", httpSupervisorProxy)
-	http.HandleFunc("/supervisor/network/", httpSupervisorProxy)
+	http.HandleFunc("/supervisor-api/supervisor/ping", httpSupervisorProxy)
+	http.HandleFunc("/supervisor-api/supervisor/logs", httpSupervisorProxy)
+	http.HandleFunc("/supervisor-api/supervisor/logs/follow", httpSupervisorProxy)
+	http.HandleFunc("/supervisor-api/resolution/", httpSupervisorProxy)
+	http.HandleFunc("/supervisor-api/network/", httpSupervisorProxy)
 
 	// Serve static help files
 	staticFiles := http.FileServer(http.Dir(wwwRoot))

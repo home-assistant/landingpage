@@ -70,8 +70,8 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Strip "/supervisor/" from the path
-	trimmedPath := strings.TrimPrefix(r.URL.Path, "/supervisor/")
+	// Strip "/supervisor-api/" from the path
+	trimmedPath := strings.TrimPrefix(r.URL.Path, "/supervisor-api/")
 
 	// Split the path into parts, the first part is the subpath (e.g., resolution or network)
 	parts := strings.SplitN(trimmedPath, "/", 2)
