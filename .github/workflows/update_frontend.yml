@@ -61,7 +61,7 @@ jobs:
         with:
           repository: 'home-assistant/frontend'
           tag: ${{ needs.check-version.outputs.latest_version }}
-          fileName: home_assistant_frontend_supervisor-${{ needs.check-version.outputs.latest_version }}.tar.gz
+          fileName: home_assistant_frontend_landingpage-${{ needs.check-version.outputs.latest_version }}.tar.gz
           extract: true
           out-file-path: rootfs/usr/share/www/
       - name: Create PR
