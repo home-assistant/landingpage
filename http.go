@@ -12,16 +12,23 @@ import (
 	"strings"
 )
 
-var regexASCII = regexp.MustCompile(`\[\d+m`)
+var regexASCII = regexp.MustCompile(`\x1b\[\d+m`)
 
 func httpIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" && r.URL.Path != "/auth/authorize" {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
-	data, _ := os.ReadFile(wwwRoot + "/index.html")
+	data, err := os.ReadFile(wwwRoot + "/index.html")
+	if err != nil {
+		log.Printf("failed to read index.html: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
-	w.Write(data)
+	if _, err := w.Write(data); err != nil {
+		log.Printf("failed to write response: %v", err)
+	}
 }
 
 func httpUnauthorized(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +47,11 @@ func httpLogs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	defer response.Body.Close()
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			log.Printf("error closing response body: %v", err)
+		}
+	}()
 
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -50,7 +61,9 @@ func httpLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logs := regexASCII.ReplaceAllLiteralString(string(data), "")
-	w.Write([]byte(logs))
+	if _, err := w.Write([]byte(logs)); err != nil {
+		log.Printf("failed to write response: %v", err)
+	}
 }
 
 func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
@@ -65,8 +78,7 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 
 	u, err := url.Parse("http://" + supervisorHost + "/")
 	if err != nil {
-		// Handle error in parsing URL
-		w.Write([]byte(err.Error()))
+		http.Error(w, "Internal Server Error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -106,10 +118,11 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 	// Add authorization header
 	r.Header.Add("Authorization", "Bearer "+os.Getenv("SUPERVISOR_TOKEN"))
 
-	if cleanPath == "/logs" {
+	switch cleanPath {
+	case "/logs":
 		// for logs download add text/plain headers
 		r.Header.Add("Accept", "text/plain")
-	} else if cleanPath == "/logs/follow" {
+	case "/logs/follow":
 		// Set FlushInterval to enable streaming
 		proxy.FlushInterval = -1
 	}
