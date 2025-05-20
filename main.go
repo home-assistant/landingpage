@@ -14,6 +14,16 @@ var mdns *zeroconf.Server
 var wwwRoot string
 var development bool
 
+func getSupervisorHost() string {
+	supervisorHost := "supervisor"
+
+	if development && os.Getenv("SUPERVISOR_HOST") != "" {
+		supervisorHost = os.Getenv("SUPERVISOR_HOST")
+	}
+
+	return supervisorHost
+}
+
 func main() {
 	development = (os.Getenv("DEVELOPMENT") == "True")
 

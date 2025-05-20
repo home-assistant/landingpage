@@ -70,11 +70,7 @@ func httpSupervisorProxy(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Proxy request: %s", r.URL.Path)
 
 	// Base Supervisor URL
-	supervisorHost := "supervisor"
-
-	if development && os.Getenv("SUPERVISOR_HOST") != "" {
-		supervisorHost = os.Getenv("SUPERVISOR_HOST")
-	}
+	supervisorHost := getSupervisorHost()
 
 	u, err := url.Parse("http://" + supervisorHost + "/")
 	if err != nil {
