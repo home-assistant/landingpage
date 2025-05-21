@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/grandcat/zeroconf"
@@ -91,7 +90,7 @@ func getOutboundIP() (net.IP, error) {
 		return nil, fmt.Errorf("can't create request to Supervisor: %s", err)
 	}
 
-	req.Header.Add("Authorization", "Bearer "+os.Getenv("SUPERVISOR_TOKEN"))
+	setSupervisorAuthHeader(req)
 
 	response, err := client.Do(req)
 	if err == nil {

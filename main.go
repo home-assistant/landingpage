@@ -24,6 +24,15 @@ func getSupervisorHost() string {
 	return supervisorHost
 }
 
+func setSupervisorAuthHeader(r *http.Request) {
+	token := os.Getenv("SUPERVISOR_TOKEN")
+	if token != "" {
+		r.Header.Add("Authorization", "Bearer "+token)
+	} else {
+		log.Println("No SUPERVISOR_TOKEN set, request will be unauthenticated")
+	}
+}
+
 func main() {
 	development = (os.Getenv("DEVELOPMENT") == "True")
 
