@@ -14,6 +14,25 @@ var mdns *zeroconf.Server
 var wwwRoot string
 var development bool
 
+func getSupervisorHost() string {
+	supervisorHost := "supervisor"
+
+	if development && os.Getenv("SUPERVISOR_HOST") != "" {
+		supervisorHost = os.Getenv("SUPERVISOR_HOST")
+	}
+
+	return supervisorHost
+}
+
+func setSupervisorAuthHeader(r *http.Request) {
+	token := os.Getenv("SUPERVISOR_TOKEN")
+	if token != "" {
+		r.Header.Add("Authorization", "Bearer "+token)
+	} else {
+		log.Println("No SUPERVISOR_TOKEN set, request will be unauthenticated")
+	}
+}
+
 func main() {
 	development = (os.Getenv("DEVELOPMENT") == "True")
 
