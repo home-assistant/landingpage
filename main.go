@@ -42,9 +42,11 @@ func main() {
 	http.Handle("/frontend_latest/", staticFiles)
 
 	// Start mDNS broadcast
-	log.Print("Start mDNS broadcast")
-	publishHomeAssistant()
-	defer mdns.Shutdown()
+	go func() {
+		log.Print("Start mDNS broadcast")
+		publishHomeAssistant()
+		defer mdns.Shutdown()
+	}()
 
 	// Run webserver
 	go func() {
