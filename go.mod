@@ -1,6 +1,6 @@
 module github.com/home-assistant/landingpage
 
-go 1.19
+go 1.24
 
 require (
 	github.com/grandcat/zeroconf v1.0.0
