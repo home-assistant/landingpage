@@ -41,7 +41,7 @@ jobs:
           - green
     steps:
     - name: Checkout the repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Login to GitHub Container Registry
       if: github.event_name == 'release'
