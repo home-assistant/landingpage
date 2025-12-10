@@ -68,7 +68,7 @@ jobs:
         run: |
           rm -f rootfs/usr/share/www/home_assistant_frontend_landingpage-*.tar.gz
       - name: Create PR
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "Update frontend to version ${{ needs.check-version.outputs.latest_version }}"
           branch: autoupdate-frontend
