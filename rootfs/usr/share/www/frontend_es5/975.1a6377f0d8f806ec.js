@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkhome_assistant_frontend=self.webpackChunkhome_assistant_frontend||[]).push([["975"],{46306:function(e,n,t){t.r(n);var o=t(9081);"undefined"==typeof Intl&&("undefined"!=typeof window?Object.defineProperty(window,"Intl",{value:{}}):"undefined"!=typeof global&&Object.defineProperty(global,"Intl",{value:{}})),Object.defineProperty(Intl,"getCanonicalLocales",{value:o.os,writable:!0,enumerable:!1,configurable:!0})}}]);
+//# sourceMappingURL=975.1a6377f0d8f806ec.js.map
