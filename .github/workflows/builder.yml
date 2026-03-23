@@ -6,53 +6,81 @@ on:
   release:
     types: ["published"]
 
+env:
+  BUILD_NAME: landingpage
+  BUILD_TYPE: landingpage
+
 jobs:
-  build:
-    name: Build landingpage
+  init:
+    name: Initialize build
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      channel: ${{ steps.version.outputs.channel }}
+      publish: ${{ steps.version.outputs.publish }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: version
+        uses: home-assistant/actions/helpers/version@master
+        with:
+          type: ${{ env.BUILD_TYPE }}
+
+  build:
+    name: Build ${{ matrix.machine }} landingpage
+    needs: init
+    runs-on: ${{ matrix.runs-on }}
     permissions:
       contents: read
       packages: write
       id-token: write
     strategy:
+      fail-fast: false
       matrix:
         machine:
+          # amd64 targets:
           - generic-x86-64
+          - qemux86-64
+          # arm64 targets:
           - khadas-vim3
           - odroid-c2
           - odroid-c4
           - odroid-m1
           - odroid-n2
           - qemuarm-64
-          - qemux86-64
           - raspberrypi3-64
           - raspberrypi4-64
           - raspberrypi5-64
           - yellow
           - green
+        include:
+          # amd64 machines
+          - machine: generic-x86-64
+            arch: amd64
+            runs-on: ubuntu-24.04
+          - machine: qemux86-64
+            arch: amd64
+            runs-on: ubuntu-24.04
+          # Default for the rest: aarch64 on native ARM runner
+          - arch: aarch64
+            runs-on: ubuntu-24.04-arm
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v6
+      - name: Checkout the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-    - name: Login to GitHub Container Registry
-      if: github.event_name == 'release'
-      uses: docker/login-action@v4.0.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set build arguments
-      if: github.event_name != 'release'
-      run: echo "BUILD_ARGS=--test" >> $GITHUB_ENV
-
-    - name: Build landingpage
-      uses: home-assistant/builder@2026.02.1
-      with:
-        args: |
-          $BUILD_ARGS \
-          --target /data \
-          --no-latest \
-          --cosign \
-          --machine landingpage=${{ matrix.machine }}
-
+      - name: Build landingpage
+        uses: home-assistant/builder/actions/build-image@62a1597b84b3461abad9816d9cd92862a2b542c3 # 2026.03.2
+        with:
+          arch: ${{ matrix.arch }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image: ghcr.io/home-assistant/${{ matrix.machine }}-homeassistant
+          image-tags: |
+            landingpage
+          push: ${{ needs.init.outputs.publish == 'true' }}
+          version: ${{ needs.init.outputs.version }}
