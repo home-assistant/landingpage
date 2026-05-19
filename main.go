@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,6 +10,9 @@ import (
 
 	"github.com/grandcat/zeroconf"
 )
+
+// httpPort is used for the actual HTTP server and the mDNS announcement
+const httpPort = 80
 
 var mdns *zeroconf.Server
 var wwwRoot string
@@ -69,8 +73,9 @@ func main() {
 
 	// Run webserver
 	go func() {
-		log.Print("Start webserver on http://0.0.0.0:8123")
-		if err := http.ListenAndServe(":8123", nil); err != nil {
+		listenAddr := fmt.Sprintf(":%d", httpPort)
+		log.Printf("Start webserver on http://0.0.0.0%s", listenAddr)
+		if err := http.ListenAndServe(listenAddr, nil); err != nil {
 			log.Fatal(err)
 		}
 	}()
