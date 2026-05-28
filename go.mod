@@ -1,3 +1,3 @@
 module github.com/home-assistant/landingpage
 
-go 1.24
+go 1.26.0
