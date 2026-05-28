@@ -6,11 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/grandcat/zeroconf"
 )
 
-var mdns *zeroconf.Server
 var wwwRoot string
 var development bool
 
@@ -59,13 +56,6 @@ func main() {
 	http.Handle("/static/", staticFiles)
 	http.Handle("/frontend_es5/", staticFiles)
 	http.Handle("/frontend_latest/", staticFiles)
-
-	// Start mDNS broadcast
-	go func() {
-		log.Print("Start mDNS broadcast")
-		publishHomeAssistant()
-		defer mdns.Shutdown()
-	}()
 
 	// Run webserver
 	go func() {
