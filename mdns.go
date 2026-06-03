@@ -18,6 +18,13 @@ import (
 // default location_name so the entry reads as "Home" in client onboarding UIs.
 const serviceInstance = "Home"
 
+// mdnsPort is the port advertised in the SRV record and embedded in the
+// TXT internal_url / base_url values. Kept as its own constant (rather than
+// shared with main.go's HTTP listen port) because the planned move to port
+// 80 may leave the landing page listening on multiple HTTP ports, in which
+// case only one of them is the right one to advertise via mDNS.
+const mdnsPort = 8123
+
 type Response struct {
 	Result  string         `json:"result"`
 	Message string         `json:"message,omitempty"`
@@ -52,7 +59,7 @@ func publishHomeAssistant() {
 		return
 	}
 
-	hostURL := "http://" + outboundIP.String() + ":8123"
+	hostURL := fmt.Sprintf("http://%s:%d", outboundIP.String(), mdnsPort)
 	txt := []string{
 		"location_name=" + serviceInstance,
 		"uuid=" + instanceID,
@@ -74,7 +81,7 @@ func publishHomeAssistant() {
 		serviceInstance,
 		"_home-assistant._tcp",
 		"local.",
-		8123,
+		mdnsPort,
 		instanceID,
 		nil,
 		txt,
