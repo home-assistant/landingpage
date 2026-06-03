@@ -134,7 +134,9 @@ func getFirstIPv4Address(iface map[string]any) (net.IP, error) {
 func getOutboundInfo() (net.IP, string, error) {
 	supervisorHost := getSupervisorHost()
 
-	client := &http.Client{}
+	// Timeout matches the retry interval in publishHomeAssistant() so a
+	// stalled Supervisor connection doesn't wedge the retry loop.
+	client := &http.Client{Timeout: 5 * time.Second}
 	req, err := http.NewRequest("GET", "http://"+supervisorHost+"/network/interface/default/info", nil)
 
 	if err != nil {
