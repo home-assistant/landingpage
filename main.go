@@ -61,11 +61,11 @@ func main() {
 	http.Handle("/frontend_es5/", staticFiles)
 	http.Handle("/frontend_latest/", staticFiles)
 
-	// Start mDNS broadcast in the background; getOutboundIP() can block for
-	// several seconds while Supervisor comes up, and we don't want that to
-	// hold up the webserver. defer Shutdown() lives here in main() so the
-	// TTL=0 goodbye only fires on actual process exit, not at the goroutine's
-	// first return (see #190).
+	// Start mDNS broadcast in the background; publishHomeAssistant() can
+	// block for several seconds while Supervisor comes up, and we don't want
+	// that to hold up the webserver. defer Shutdown() lives here in main()
+	// so the TTL=0 goodbye only fires on actual process exit, not at the
+	// goroutine's first return (see #190).
 	log.Print("Start mDNS broadcast")
 	go publishHomeAssistant()
 	defer func() {
