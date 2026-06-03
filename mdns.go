@@ -77,7 +77,7 @@ func publishHomeAssistant() {
 	// iface only when both AddrIPv4 and AddrIPv6 are empty). Passing an
 	// explicit IPv4 here would publish that single A and zero AAAAs,
 	// which is what we accidentally did and the wire trace confirmed.
-	mdns, err = zeroconf.RegisterProxy(
+	server, err := zeroconf.RegisterProxy(
 		serviceInstance,
 		"_home-assistant._tcp",
 		"local.",
@@ -89,7 +89,9 @@ func publishHomeAssistant() {
 	)
 	if err != nil {
 		log.Printf("Failed to start mDNS: %s", err)
+		return
 	}
+	mdns.Store(server)
 }
 
 // generateInstanceID returns a 32-char hex string (128 bits of randomness),

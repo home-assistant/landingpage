@@ -5,12 +5,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 
 	"github.com/libp2p/zeroconf/v2"
 )
 
-var mdns *zeroconf.Server
+// mdns is written from the publishHomeAssistant() goroutine once
+// zeroconf.RegisterProxy() succeeds and read from main()'s deferred shutdown
+// on SIGTERM/SIGINT. The two routines never synchronise, so the pointer is
+// stored atomically to make the write visible to the reader without a race.
+var mdns atomic.Pointer[zeroconf.Server]
 var wwwRoot string
 var development bool
 
@@ -69,8 +74,8 @@ func main() {
 	log.Print("Start mDNS broadcast")
 	go publishHomeAssistant()
 	defer func() {
-		if mdns != nil {
-			mdns.Shutdown()
+		if s := mdns.Load(); s != nil {
+			s.Shutdown()
 		}
 	}()
 
