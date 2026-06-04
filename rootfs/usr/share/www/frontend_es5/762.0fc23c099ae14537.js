@@ -1,0 +1,2 @@
+"use strict";(self.rspackChunkhome_assistant_frontend=self.rspackChunkhome_assistant_frontend||[]).push([[762],{60977:function(t,e,n){n.r(e);var s=n(50802);const a=document.createElement("style");a.textContent=s.Q,document.head.append(a)}}]);
+//# sourceMappingURL=762.0fc23c099ae14537.js.map
