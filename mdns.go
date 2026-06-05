@@ -73,7 +73,6 @@ func publishHomeAssistant() {
 		"external_url=",
 		"internal_url=" + hostURL,
 		"base_url=" + hostURL,
-		"requires_api_password=True",
 		"landingpage=True",
 	}
 
