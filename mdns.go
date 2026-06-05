@@ -25,6 +25,12 @@ const serviceInstance = "Home"
 // case only one of them is the right one to advertise via mDNS.
 const mdnsPort = 8123
 
+// supervisorRetryInterval is both the sleep between Supervisor poll attempts
+// and the per-request HTTP timeout. Using one constant for both makes the
+// retry loop iterate on schedule even if a request stalls — the next poll
+// fires within roughly 2× this interval.
+const supervisorRetryInterval = 5 * time.Second
+
 type Response struct {
 	Result  string         `json:"result"`
 	Message string         `json:"message,omitempty"`
@@ -43,8 +49,8 @@ func publishHomeAssistant() {
 		if outboundIP != nil && outboundIface != "" {
 			break
 		}
-		log.Printf("Failed to get default interface info, retrying in 5s: %s", err)
-		time.Sleep(5 * time.Second)
+		log.Printf("Failed to get default interface info, retrying in %s: %s", supervisorRetryInterval, err)
+		time.Sleep(supervisorRetryInterval)
 	}
 
 	iface, err := net.InterfaceByName(outboundIface)
@@ -136,9 +142,9 @@ func getFirstIPv4Address(iface map[string]any) (net.IP, error) {
 func getOutboundInfo() (net.IP, string, error) {
 	supervisorHost := getSupervisorHost()
 
-	// Timeout matches the retry interval in publishHomeAssistant() so a
-	// stalled Supervisor connection doesn't wedge the retry loop.
-	client := &http.Client{Timeout: 5 * time.Second}
+	// Same value as the retry sleep: a stalled request gives up in time
+	// for the next loop iteration to fire on schedule.
+	client := &http.Client{Timeout: supervisorRetryInterval}
 	req, err := http.NewRequest("GET", "http://"+supervisorHost+"/network/interface/default/info", nil)
 
 	if err != nil {
