@@ -69,6 +69,14 @@ func publishHomeAssistant() {
 	txt := []string{
 		"location_name=" + serviceInstance,
 		"uuid=" + instanceID,
+		// The landing page runs before Core is installed, so there is no
+		// real Core version to advertise. Older companion apps parse the
+		// version and reject the record if it doesn't look like a valid
+		// Core version, so we advertise the sentinel "0000.0.0" on purpose:
+		// it satisfies those apps without pretending to be a real release.
+		// The Android app stopped requiring a version after 2026.6.2 (see
+		// home-assistant/android#6970); iOS still requires it, tracked in
+		// home-assistant/iOS#4712.
 		"version=0000.0.0",
 		"external_url=",
 		"internal_url=" + hostURL,
