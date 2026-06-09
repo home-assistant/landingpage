@@ -16,9 +16,13 @@ import (
 	"github.com/brutella/dnssd"
 )
 
-// serviceInstance is the user-visible service instance name. Mirrors Core's
-// default location_name so the entry reads as "Home" in client onboarding UIs.
-const serviceInstance = "Home"
+// serviceInstance is the user-visible service instance name. Chosen
+// deliberately unlike Core's "Home" default so the entry stands out in
+// client onboarding lists ("this is the install you're setting up, not
+// an already-configured one") and so the name doesn't collide with the
+// many existing "Home" announcements typical on a LAN with other HA
+// installs (which would otherwise force a rename to "Home (2)"…).
+const serviceInstance = "Home (preparing setup)"
 
 // mdnsPort is the port advertised in the SRV record and embedded in the
 // TXT internal_url / base_url values. Kept as its own constant (rather than
