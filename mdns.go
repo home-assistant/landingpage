@@ -14,7 +14,18 @@ import (
 	"time"
 
 	"github.com/brutella/dnssd"
+	dnssdlog "github.com/brutella/dnssd/log"
 )
+
+func init() {
+	// Silence brutella/dnssd's INFO-level logger. Most messages are
+	// RFC-6762-violation diagnostics about *other* hosts' packets, which
+	// aren't actionable for us. The one notable noisy one for HA OS is
+	// "no such network interface" from netlink_linux.go:29 — fires every
+	// time a docker veth comes or goes (which is often, given add-on
+	// containers start and stop). Debug stays disabled by default.
+	dnssdlog.Info.Disable()
+}
 
 // serviceInstance is the user-visible service instance name. Chosen
 // deliberately unlike Core's "Home" default so the entry stands out in
