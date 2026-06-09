@@ -67,7 +67,15 @@ func publishHomeAssistant(ctx context.Context) {
 			break
 		}
 		log.Printf("Failed to get default interface info, retrying in %s: %s", supervisorRetryInterval, err)
-		time.Sleep(supervisorRetryInterval)
+		// Use a ctx-aware sleep so a SIGTERM during the supervisor-wait
+		// window unblocks immediately instead of leaving the goroutine
+		// asleep until time.Sleep returns.
+		select {
+		case <-time.After(supervisorRetryInterval):
+		case <-ctx.Done():
+			log.Print("mDNS broadcast cancelled before Supervisor was ready")
+			return
+		}
 	}
 
 	instanceID, err := generateInstanceID()
@@ -151,9 +159,14 @@ func publishHomeAssistant(ctx context.Context) {
 	log.Printf("Announcing %s on %s as %s (target %s.local)", hostURL, outboundIface, probed.ServiceInstanceName(), instanceID)
 	// Respond blocks until ctx is cancelled. On cancellation it sends the
 	// RFC 6762 §10.1 goodbye (TTL=0 PTR) on every interface the service is
-	// bound to and then returns.
-	if err := rp.Respond(ctx); err != nil && !errors.Is(err, context.Canceled) {
-		log.Printf("mDNS responder exited: %s", err)
+	// bound to and then returns. main() defers a wait on this goroutine so
+	// the goodbye reaches the wire before the process exits.
+	err = rp.Respond(ctx)
+	switch {
+	case err == nil, errors.Is(err, context.Canceled):
+		log.Printf("Sent mDNS goodbye for %s", probed.ServiceInstanceName())
+	default:
+		log.Printf("mDNS responder exited with error: %s", err)
 	}
 }
 

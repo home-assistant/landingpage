@@ -62,11 +62,23 @@ func main() {
 	// Start mDNS broadcast in the background; publishHomeAssistant() can
 	// block for several seconds while Supervisor comes up, and we don't want
 	// that to hold up the webserver. Cancelling the context triggers a clean
-	// RFC 6762 §10.1 goodbye before the responder exits (see #190).
+	// RFC 6762 §10.1 goodbye before the responder exits (see #190). We
+	// explicitly wait for the goroutine to drain on shutdown so the goodbye
+	// actually reaches the wire before the process exits — without the wait,
+	// main() returns and the kernel kills the goroutine mid-SendResponse.
 	log.Print("Start mDNS broadcast")
 	mdnsCtx, cancelMDNS := context.WithCancel(context.Background())
-	defer cancelMDNS()
-	go publishHomeAssistant(mdnsCtx)
+	mdnsDone := make(chan struct{})
+	go func() {
+		defer close(mdnsDone)
+		publishHomeAssistant(mdnsCtx)
+	}()
+	defer func() {
+		log.Print("Shutting down mDNS broadcast")
+		cancelMDNS()
+		<-mdnsDone
+		log.Print("mDNS broadcast stopped")
+	}()
 
 	// Run webserver
 	go func() {
