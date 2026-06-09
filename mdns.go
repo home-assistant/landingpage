@@ -104,18 +104,36 @@ func publishHomeAssistant(ctx context.Context) {
 		return
 	}
 
+	// Probe up-front (RFC 6762 §8.1) so we know the final service instance
+	// name *before* announcing. brutella renames on conflict with "Name (N)"
+	// style — not identical to Core's "-N" but functionally equivalent and
+	// good enough; we lean on the unusual default name (see serviceInstance)
+	// to make actual collisions vanishingly rare. Respond() will re-probe
+	// internally; that second probe sees no conflict and completes
+	// immediately.
+	probed, err := dnssd.ProbeService(ctx, sv)
+	if err != nil {
+		if !errors.Is(err, context.Canceled) {
+			log.Printf("mDNS probing failed: %s", err)
+		}
+		return
+	}
+	if probed.Name != sv.Name {
+		log.Printf("Service name %q already in use, renamed to %q", sv.Name, probed.Name)
+	}
+
 	rp, err := dnssd.NewResponder()
 	if err != nil {
 		log.Printf("Failed to create mDNS responder: %s", err)
 		return
 	}
 
-	if _, err := rp.Add(sv); err != nil {
+	if _, err := rp.Add(probed); err != nil {
 		log.Printf("Failed to add mDNS service: %s", err)
 		return
 	}
 
-	log.Printf("Publish %s to _home-assistant._tcp as %s.local on %s", hostURL, instanceID, outboundIface)
+	log.Printf("Announcing %s on %s as %s (target %s.local)", hostURL, outboundIface, probed.ServiceInstanceName(), instanceID)
 	// Respond blocks until ctx is cancelled. On cancellation it sends the
 	// RFC 6762 §10.1 goodbye (TTL=0 PTR) on every interface the service is
 	// bound to and then returns.
