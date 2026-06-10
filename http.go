@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -13,6 +14,15 @@ import (
 )
 
 var regexASCII = regexp.MustCompile(`\x1b\[\d+m`)
+
+func httpRedirect(w http.ResponseWriter, r *http.Request) {
+	host := r.Host
+	if h, _, err := net.SplitHostPort(host); err == nil {
+		host = h
+	}
+	target := "http://" + net.JoinHostPort(host, "8123") + r.URL.RequestURI()
+	http.Redirect(w, r, target, http.StatusFound)
+}
 
 func httpIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" && r.URL.Path != "/auth/authorize" {

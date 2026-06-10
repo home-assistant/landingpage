@@ -87,6 +87,14 @@ func main() {
 		}
 	}()
 
+	// Redirect requests on port 80 to port 8123
+	go func() {
+		log.Print("Start redirect server on http://0.0.0.0:80")
+		if err := http.ListenAndServe(":80", http.HandlerFunc(httpRedirect)); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	signalChannel := make(chan os.Signal, 2)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
 	for {
