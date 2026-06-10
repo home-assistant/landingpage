@@ -1,21 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"sync/atomic"
 	"syscall"
-
-	"github.com/libp2p/zeroconf/v2"
 )
 
-// mdns is written from the publishHomeAssistant() goroutine once
-// zeroconf.RegisterProxy() succeeds and read from main()'s deferred shutdown
-// on SIGTERM/SIGINT. The two routines never synchronise, so the pointer is
-// stored atomically to make the write visible to the reader without a race.
-var mdns atomic.Pointer[zeroconf.Server]
 var wwwRoot string
 var development bool
 
@@ -68,15 +61,23 @@ func main() {
 
 	// Start mDNS broadcast in the background; publishHomeAssistant() can
 	// block for several seconds while Supervisor comes up, and we don't want
-	// that to hold up the webserver. defer Shutdown() lives here in main()
-	// so the TTL=0 goodbye only fires on actual process exit, not at the
-	// goroutine's first return (see #190).
+	// that to hold up the webserver. Cancelling the context triggers a clean
+	// RFC 6762 §10.1 goodbye before the responder exits (see #190). We
+	// explicitly wait for the goroutine to drain on shutdown so the goodbye
+	// actually reaches the wire before the process exits — without the wait,
+	// main() returns and the kernel kills the goroutine mid-SendResponse.
 	log.Print("Start mDNS broadcast")
-	go publishHomeAssistant()
+	mdnsCtx, cancelMDNS := context.WithCancel(context.Background())
+	mdnsDone := make(chan struct{})
+	go func() {
+		defer close(mdnsDone)
+		publishHomeAssistant(mdnsCtx)
+	}()
 	defer func() {
-		if s := mdns.Load(); s != nil {
-			s.Shutdown()
-		}
+		log.Print("Shutting down mDNS broadcast")
+		cancelMDNS()
+		<-mdnsDone
+		log.Print("mDNS broadcast stopped")
 	}()
 
 	// Run webserver

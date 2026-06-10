@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,12 +13,27 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/libp2p/zeroconf/v2"
+	"github.com/brutella/dnssd"
+	dnssdlog "github.com/brutella/dnssd/log"
 )
 
-// serviceInstance is the user-visible service instance name. Mirrors Core's
-// default location_name so the entry reads as "Home" in client onboarding UIs.
-const serviceInstance = "Home"
+func init() {
+	// Silence brutella/dnssd's INFO-level logger. Most messages are
+	// RFC-6762-violation diagnostics about *other* hosts' packets, which
+	// aren't actionable for us. The one notable noisy one for HA OS is
+	// "no such network interface" from netlink_linux.go:29 — fires every
+	// time a docker veth comes or goes (which is often, given add-on
+	// containers start and stop). Debug stays disabled by default.
+	dnssdlog.Info.Disable()
+}
+
+// serviceInstance is the user-visible service instance name. Chosen
+// deliberately unlike Core's "Home" default so the entry stands out in
+// client onboarding lists ("this is the install you're setting up, not
+// an already-configured one") and so the name doesn't collide with the
+// many existing "Home" announcements typical on a LAN with other HA
+// installs (which would otherwise force a rename to "Home (2)"…).
+const serviceInstance = "Home (preparing setup)"
 
 // mdnsPort is the port advertised in the SRV record and embedded in the
 // TXT internal_url / base_url values. Kept as its own constant (rather than
@@ -37,7 +54,7 @@ type Response struct {
 	Data    map[string]any `json:"data,omitempty"`
 }
 
-func publishHomeAssistant() {
+func publishHomeAssistant(ctx context.Context) {
 	var (
 		err           error
 		outboundIP    net.IP
@@ -50,13 +67,15 @@ func publishHomeAssistant() {
 			break
 		}
 		log.Printf("Failed to get default interface info, retrying in %s: %s", supervisorRetryInterval, err)
-		time.Sleep(supervisorRetryInterval)
-	}
-
-	iface, err := net.InterfaceByName(outboundIface)
-	if err != nil {
-		log.Printf("Interface %q not found: %s; skipping mDNS", outboundIface, err)
-		return
+		// Use a ctx-aware sleep so a SIGTERM during the supervisor-wait
+		// window unblocks immediately instead of leaving the goroutine
+		// asleep until time.Sleep returns.
+		select {
+		case <-time.After(supervisorRetryInterval):
+		case <-ctx.Done():
+			log.Print("mDNS broadcast cancelled before Supervisor was ready")
+			return
+		}
 	}
 
 	instanceID, err := generateInstanceID()
@@ -66,45 +85,89 @@ func publishHomeAssistant() {
 	}
 
 	hostURL := fmt.Sprintf("http://%s:%d", outboundIP.String(), mdnsPort)
-	txt := []string{
-		"location_name=" + serviceInstance,
-		"uuid=" + instanceID,
-		// The landing page runs before Core is installed, so there is no
-		// real Core version to advertise. Older companion apps parse the
-		// version and reject the record if it doesn't look like a valid
-		// Core version, so we advertise the sentinel "0000.0.0" on purpose:
-		// it satisfies those apps without pretending to be a real release.
-		// The Android app stopped requiring a version after 2026.6.2 (see
-		// home-assistant/android#6970); iOS still requires it, tracked in
-		// home-assistant/iOS#4712.
-		"version=0000.0.0",
-		"external_url=",
-		"internal_url=" + hostURL,
-		"base_url=" + hostURL,
-		"landingpage=True",
+	cfg := dnssd.Config{
+		Name:   serviceInstance,
+		Type:   "_home-assistant._tcp",
+		Domain: "local",
+		// Host is used as the SRV target hostname (<Host>.local). Using a
+		// random 128-bit hex value keeps it unique across HA installs on the
+		// LAN and avoids colliding with systemd-resolved's homeassistant.local
+		// claim on the same host.
+		Host:   instanceID,
+		Port:   mdnsPort,
+		// Restrict to the outbound interface reported by Supervisor so the
+		// announce only goes out on the LAN-facing iface, and the A/AAAA RRset
+		// only contains addresses bound to that iface (not docker-bridge
+		// gateways or unrelated veth link-locals). brutella resolves the name
+		// to *net.Interface internally and derives A and AAAA records from
+		// iface.Addrs().
+		Ifaces: []string{outboundIface},
+		Text: map[string]string{
+			"location_name": serviceInstance,
+			"uuid":          instanceID,
+			// The landing page runs before Core is installed, so there is no
+			// real Core version to advertise. Older companion apps parse the
+			// version and reject the record if it doesn't look like a valid
+			// Core version, so we advertise the sentinel "0000.0.0" on
+			// purpose: it satisfies those apps without pretending to be a
+			// real release. The Android app stopped requiring a version
+			// after 2026.6.2 (see home-assistant/android#6970); iOS still
+			// requires it, tracked in home-assistant/iOS#4712.
+			"version":      "0000.0.0",
+			"external_url": "",
+			"internal_url": hostURL,
+			"base_url":     hostURL,
+			"landingpage":  "True",
+		},
 	}
 
-	log.Printf("Publish %s to _home-assistant._tcp as %s.local on %s", hostURL, instanceID, iface.Name)
-	// Pass nil for the IPs so libp2p/zeroconf enumerates A *and* AAAA
-	// records from the interface (its appendAddrs() falls back to the
-	// iface only when both AddrIPv4 and AddrIPv6 are empty). Passing an
-	// explicit IPv4 here would publish that single A and zero AAAAs,
-	// which is what we accidentally did and the wire trace confirmed.
-	server, err := zeroconf.RegisterProxy(
-		serviceInstance,
-		"_home-assistant._tcp",
-		"local.",
-		mdnsPort,
-		instanceID,
-		nil,
-		txt,
-		[]net.Interface{*iface},
-	)
+	sv, err := dnssd.NewService(cfg)
 	if err != nil {
-		log.Printf("Failed to start mDNS: %s", err)
+		log.Printf("Failed to build mDNS service: %s", err)
 		return
 	}
-	mdns.Store(server)
+
+	// Probe up-front (RFC 6762 §8.1) so we know the final service instance
+	// name *before* announcing. brutella renames on conflict with "Name (N)"
+	// style — not identical to Core's "-N" but functionally equivalent and
+	// good enough; we lean on the unusual default name (see serviceInstance)
+	// to make actual collisions vanishingly rare. Respond() will re-probe
+	// internally; that second probe sees no conflict and completes
+	// immediately.
+	probed, err := dnssd.ProbeService(ctx, sv)
+	if err != nil {
+		if !errors.Is(err, context.Canceled) {
+			log.Printf("mDNS probing failed: %s", err)
+		}
+		return
+	}
+	if probed.Name != sv.Name {
+		log.Printf("Service name %q already in use, renamed to %q", sv.Name, probed.Name)
+	}
+
+	rp, err := dnssd.NewResponder()
+	if err != nil {
+		log.Printf("Failed to create mDNS responder: %s", err)
+		return
+	}
+
+	if _, err := rp.Add(probed); err != nil {
+		log.Printf("Failed to add mDNS service: %s", err)
+		return
+	}
+
+	log.Printf("Announcing %s on %s as %s (target %s.local)", hostURL, outboundIface, probed.ServiceInstanceName(), instanceID)
+	// Respond blocks until ctx is cancelled. On cancellation it sends the
+	// RFC 6762 §10.1 goodbye (TTL=0 PTR) on every interface the service is
+	// bound to and then returns. main() defers a wait on this goroutine so
+	// the goodbye reaches the wire before the process exits.
+	err = rp.Respond(ctx)
+	switch {
+	case err == nil, errors.Is(err, context.Canceled):
+		log.Printf("mDNS responder for %s stopped", probed.ServiceInstanceName())
+	default:
+		log.Printf("mDNS responder exited with error: %s", err)
+	}
 }
 
 // generateInstanceID returns a 32-char hex string (128 bits of randomness),
