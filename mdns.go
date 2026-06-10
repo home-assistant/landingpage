@@ -164,7 +164,7 @@ func publishHomeAssistant(ctx context.Context) {
 	err = rp.Respond(ctx)
 	switch {
 	case err == nil, errors.Is(err, context.Canceled):
-		log.Printf("Sent mDNS goodbye for %s", probed.ServiceInstanceName())
+		log.Printf("mDNS responder for %s stopped", probed.ServiceInstanceName())
 	default:
 		log.Printf("mDNS responder exited with error: %s", err)
 	}
