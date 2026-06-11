@@ -83,5 +83,7 @@ jobs:
           image: ghcr.io/home-assistant/${{ matrix.machine }}-homeassistant
           image-tags: |
             landingpage
+            landingpage-${{ needs.init.outputs.version }}
           push: ${{ needs.init.outputs.publish == 'true' }}
-          version: ${{ needs.init.outputs.version }}
+          # version must be "landingpage" until this is resolved: https://github.com/home-assistant/supervisor/issues/6934
+          version: landingpage
