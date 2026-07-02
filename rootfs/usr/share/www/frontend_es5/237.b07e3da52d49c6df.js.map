@@ -1,0 +1,1 @@
+{"version":3,"file":"237.b07e3da52d49c6df.js","sources":["https://raw.githubusercontent.com/home-assistant/frontend/20260624.3/src/resources/polyfills/resize-observer.ts"],"names":["window","ResizeObserver","__webpack_require__","e","then","bind","default"],"mappings":"oKAAqC,mBAA1BA,OAAOC,iBAChBD,OAAOC,sBACCC,EAAAC,EAAA,KAAAC,KAAAF,EAAAG,KAAAH,EAAA,SACNI"}
