@@ -1,1 +1,0 @@
-{"version":3,"file":"762.8e8a055cc3d963d4.js","sources":["https://raw.githubusercontent.com/home-assistant/frontend/20260527.4/src/resources/append-ha-style.ts"],"names":["styleElement","document","createElement","textContent","themeStyles","head","append"],"mappings":"sIAEA,MAAMA,EAAeC,SAASC,cAAc,SAC5CF,EAAaG,YAAcC,EAAAA,EAC3BH,SAASI,KAAKC,OAAON"}
