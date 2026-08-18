@@ -82,16 +82,16 @@ func main() {
 
 	// Run webserver
 	go func() {
-		log.Print("Start webserver on http://0.0.0.0:8123")
-		if err := http.ListenAndServe(":8123", nil); err != nil {
+		log.Print("Start webserver on http://0.0.0.0:80")
+		if err := http.ListenAndServe(":80", nil); err != nil {
 			log.Fatal(err)
 		}
 	}()
 
-	// Redirect requests on port 80 to port 8123
+	// Redirect requests on the legacy port 8123 to port 80
 	go func() {
-		log.Print("Start redirect server on http://0.0.0.0:80")
-		if err := http.ListenAndServe(":80", http.HandlerFunc(httpRedirect)); err != nil {
+		log.Print("Start redirect server on http://0.0.0.0:8123")
+		if err := http.ListenAndServe(":8123", http.HandlerFunc(httpRedirect)); err != nil {
 			log.Fatal(err)
 		}
 	}()

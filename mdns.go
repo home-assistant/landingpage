@@ -35,12 +35,10 @@ func init() {
 // installs (which would otherwise force a rename to "Home (2)"…).
 const serviceInstance = "Home (preparing setup)"
 
-// mdnsPort is the port advertised in the SRV record and embedded in the
-// TXT internal_url / base_url values. Kept as its own constant (rather than
-// shared with main.go's HTTP listen port) because the planned move to port
-// 80 may leave the landing page listening on multiple HTTP ports, in which
-// case only one of them is the right one to advertise via mDNS.
-const mdnsPort = 8123
+// mdnsPort is the port advertised in the SRV record. It points at the listener
+// serving content. The landing page also listens on 8123, which only redirects
+// here and must stay unadvertised so clients don't record it as the address.
+const mdnsPort = 80
 
 // supervisorRetryInterval is both the sleep between Supervisor poll attempts
 // and the per-request HTTP timeout. Using one constant for both makes the
@@ -84,7 +82,9 @@ func publishHomeAssistant(ctx context.Context) {
 		return
 	}
 
-	hostURL := fmt.Sprintf("http://%s:%d", outboundIP.String(), mdnsPort)
+	// Port 80 is the http scheme default, so internal_url and base_url can be
+	// a plain IP with the scheme prefix.
+	hostURL := fmt.Sprintf("http://%s", outboundIP.String())
 	cfg := dnssd.Config{
 		Name:   serviceInstance,
 		Type:   "_home-assistant._tcp",

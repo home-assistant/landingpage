@@ -19,8 +19,14 @@ func httpRedirect(w http.ResponseWriter, r *http.Request) {
 	host := r.Host
 	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
+		// SplitHostPort strips the brackets off an IPv6 literal, so put them
+		// back before the host goes into a URL.
+		if strings.Contains(host, ":") {
+			host = "[" + host + "]"
+		}
 	}
-	target := "http://" + net.JoinHostPort(host, "8123") + r.URL.RequestURI()
+	// Redirecting to port 80 - no port suffix needed.
+	target := "http://" + host + r.URL.RequestURI()
 	http.Redirect(w, r, target, http.StatusFound)
 }
 
