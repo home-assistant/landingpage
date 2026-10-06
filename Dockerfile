@@ -1,4 +1,4 @@
-FROM golang:1.26-alpine3.23 AS builder
+FROM golang:1.26.8-alpine3.24 AS builder
 
 WORKDIR /usr/src/landingpage
 ARG TARGETARCH
